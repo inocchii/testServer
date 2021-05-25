@@ -1,0 +1,2005 @@
+<?php
+/*------------------------------------------------------------------------------
+ * 共通定数定義
+ *------------------------------------------------------------------------------
+ * @package    hiway13/standard
+ * @copyright  2013 Himuka Distribution Network CO.,LTD. All Rights Reserved.
+ * @version    2020.06.01
+ *------------------------------------------------------------------------------
+ * システム共通の定数定義
+ * 　サブシステム毎の主な定数は以下
+ * 　　APP_DIR ：サブシステムディレクトリ
+ * 　　LOG_PATH：サブシステムログ
+ * 　　APP_URL ：サブシステムＵＲＬ
+ * ユーザ固有の定数定義（$UV）について
+ * 　　ユーザ固有の設定を行う可能性があるものは定数定義用の配列（$UV）に設定する。
+ * 　　当ファイルで設定された値はユーザ側定義があれば上書きされた後に定数化される。
+ * 配列を共通定義したい場合
+ * 　　前述の定数定義用の配列（$UV）に設定し、グローバル変数として共有する。
+ *------------------------------------------------------------------------------
+ * 2020.09.23 CGC_MASTER**の定義を変更(by 平山)
+ * 2020.08.07 棚卸の原価/売価の表示非表示情報(TANAORO_BAIKA_DISP/TANAORO_GENKA_DISP)を追加(by 飛高)
+ * 2020.07.07 com_db の DB情報を追加 (by 高橋)
+ * 2020.06.01 BMS支払生成処理の対象有無の追加 (by 若松)
+ * 2020.04.28 生鮮EDI 関連の項目追加 (by 高橋)
+ * 2020.04.24 生鮮EDI 関連の項目追加 (by 高橋)
+ * 2020.03.13 BUN_KBN_DAI修正(by 鬼束)
+ * 2019.11.06 軽減税率対応スイッチON(by 林)
+ * 2019.11.03 値引伝票区分の細分化対応（by 井口）
+ * 2019.11.01 買掛/消費税調整関連定義（by 井口）
+ * 2019.10.15 入金/支払入力関連定義（by 鬼束）
+ * 2019.10.03 DB:spvの接続先変更（by 鬼束）
+ * 2019.07.31 軽減税率の適用開始日($UV["REDUCED_TAX_RATE_SDT"])を追加（by 松田）
+ * 2019.07.29 軽減税率対応切替日の取得
+ * 2019.07.27 売上・仕入集計バッチ処理 (by 高橋)
+ * 2019.07.18 Webタブレット 卸用ログインのメニュー項目を追加する (by 高橋)
+ * 2019.07.16 売上関連画面制御関連の定義を追加 (by kawauchi)
+ * 2019.05.29 返品理由コードの標準値 DEF_HENPIN_RIYU_CD の定義を追加（by 若松）
+ * 2019.05.22 在庫締で使用する日付 URIKAKE_ZAIKO_UPD_DT_TYPE の定義を追加（by 若松）
+ * 2019.04.08 ["FRESH2_HONBU_ORDER_JAN_INPUT"]を定義（by 鬼束）
+ * 2019.03.26 $UV["EOB_SPOT_YN"]を定義（by 鬼束）
+ * 2019.03.26 在庫反映時間を仕入用と売上用別に定義（by 中武）
+ * 2019.02.26 ＳＰＶ本部情報を定義（by 鬼束）
+ * 2019.02.20 請求書の伝票明細の出力チェックの有無を追加（by 若松）
+ * 2019.02.19 Webタブレット用の URL を追加する (by 高橋)
+ * 2019.01.24 仕入一括入力２の行数を制御 ROWNUM_SIIRE_IKKATU2 (by 飛高)
+ * 2019.01.20 売掛関連を追加 (by 中武)
+ * 2018.12.21 生鮮発注関連の定数を追加 (by 高橋)
+ * 2018.12.20 HHT_URI_SAIBAN_UNITを追加 (by 中武)
+ * 2018.12.18 卸共通DB の接続情報を追加 (by 高橋)
+ * 2018.12.07 $UV["DEF_TOKUI_CD"]を追加 (by 中武)
+ * 2018.12.06 大ノブ移動販売用棚卸種別追加 TANA_SBT_KEYENCE_TANA、TANA_SBT_KEYENCE_CHIN（by 平山）
+ * 2018.11.16 グループ相当の項目名GROUP_CD_COLUMN_NMを追加（by 飛高）
+ * 2018.09.18 仕入経費入力時に費用部門コードの自動入力の可否を追加（by 若松）
+ * 2018.08.30 SPV売上の連携場所 (by 中武)
+ * 2018.08.20 自動発注 セット商品対象企業 (by 高橋)
+ * 2018.06.27 開発系累積DBが無効になっているのでコメント化（by 吉瀬）
+ * 2018.06.18 電子保存用のDB LINK 情報を追加 (by 高橋)
+ * 2018.06.18 EOB_DISP_PTNの説明を変更（by 飛高）
+ * 2018.06.12 EOB関連の設定を追加（by 鬼束）
+ * 2018.06.11 移動一括の定番特売区分の初期値を追加（by 若松）
+ * 2018.05.08 DIALOG_FULL_PARAM2を追加（by 飛高）
+ * 2018.05.02 店舗棚番の利用可否を追加（by 鬼束）
+ * 2018.04.27 仕入伝票の重複チェックの条件項目を追加（by 若松）
+ * 2018.04.10 何日分未来の特売情報を取得するか判定する。(by 高橋)
+ * 2018.03.14 買掛の利用有無を定義（by 鬼束）
+ * 2018.02.02 商品登録関連の区分追加（by 中武）
+ * 2018.01.25 $UV["BUN_KBN_ITEM_YN"]を定義（by 鬼束）
+ * 2018.01.25 累積ＤＢの接続を定義（by 鬼束）
+ * 2018.01.17 標準税率/軽減税率のコードを追加（by 若松）
+ * 2018.01.15 軽減税率設定($UV["REDUCED_TAX_RATE_YN"])を追加（by 中武）
+ * 2018.01.15 CGC取引先の原価変更設定を追加（by 中武）
+ * 2017.10.31 $UV["DEN_CD_KBN"]を設定変更（by 鬼束）
+ * 2017.10.19 DIALOG_FULL_PARAM をwindow.open用に修正（by 飛高）
+ * 2017.09.06 $UV["TANA_TSUKETATE_BUNRUI_PAGE"]を新設（by 吉瀬）
+ * 2017.09.06 $UV["TANA_TSUKETATE_BUNRUI"]を新設（by 吉瀬）
+ * 2017.08.24 $UV["TANA_TSUKETATE_TENPO_NM_S"]を新設（by 吉瀬）
+ * 2017.08.24 $UV["TANA_TSUKETATE_TANABAN_NM"]を新設（by 吉瀬）
+ * 2017.08.23 $UV["TANA_TSUKETATE_POSMASTER"]を新設（by 吉瀬）
+ * 2017.07.20 $UV["EOB_TOKU_URI_KASAN"]新設（by 吉瀬）
+ * 2017.07.14 bms_data,bms_data_atのDB情報を追加（by 吉瀬）
+ * 2017.06.26 $UV["AOS_ITEM_BUN_CD_LEN"]（by 鬼束）
+ * 2017.06.03 $UV["TOKU_NEW_IROWAKE_YN"]（by 鬼束）
+ * 2017.05.08 商品登録関連の区分追加 $UV["ITEM_MENT_HANKAKU_ALLOW"]（by 平山）
+ * 2017.05.08 商品登録関連の区分追加 $UV["ITEM_MENT_SEISEI_MAKER"]（by 平山）
+ * 2017.04.24 ログ出力場所をローカルディレクトリへ（by 中武）
+ * 2017.04.06 $UV["EOB_MIRAI_ITEM_YN"]を定義（by 鬼束）
+ * 2017.03.30 DEN_KBN_NEBIKI_BUNを定義（by 鬼束）
+ * 2017.03.23 リアル在庫修正時間の反映期限を定義（by 中武）
+ * 2017.03.21 仕入値引金額の正負混在の可否を定義（by 若松）
+ * 2017.03.01 websi-exc2データ連携ディレクトリ定義（by 鬼束）
+ * 2017.02.17 $UV["TOKU_KAIIN_BAIKA_USE_YN"]を定義（by 中武）
+ * 2017.01.22 PDF_URのURLが名前解決できない事が多いためIPへ（by 平山）
+ * 2017.01.18 ユーザー区分を定義（by 鬼束）
+ * 2017.01.18 EOBにて納品日選択の利用可否を定義（by 鬼束）
+ * 2016.12.20 $UV["LEN_TORI_CD_USE_YN"]を定義（by 中武）
+ * 2016.12.09 JOVY出荷データPATHを定義（by 若松）
+ * 2016.11.21 タブレットのバージョンアップ [TABLET_APP_VER]（by 鈴木）
+ * 2016.10.31 仕入入力における標準設定変更（by 若松）
+ * 2016.10.26 タブレットのバージョンアップ（by 鈴木）
+ * 2016.08.30 特売種別グループの定義を追加（by 飛高）
+ * 2016.08.19 生産者関連の設定を定義（by 鬼束）
+ * 2016.08.17 生産者関連の設定を定義（by 鬼束）
+ * 2016.08.04 生産者関連の設定を定義（by 鬼束）
+ * 2016.08.08 タブレットのバージョンアップ（by 鈴木）
+ * 2016.08.03 タブレットのバージョンアップ（by 鈴木）
+ * 2016.07.25 タブレットのバージョンアップ（by 鈴木）
+ * 2016.07.20 タブレットのバージョンアップ（by 鈴木）
+ * 2016.07.15 タブレットのバージョンアップ（by 鈴木）
+ * 2016.07.11 自動発注関連の設定を調整（by 鬼束）
+ * 2016.07.08 タブレットのバージョンアップ（by 鈴木）
+ * 2016.07.07 eobにて自動発注存在アラート制御を定義（by 鬼束）
+ * 2016.07.04 自動発注関連の設定を定義（by 鬼束）
+ * 2016.06.27 タブレットのバージョンアップ（by 鈴木）
+ * 2016.06.24 タブレットのバージョンアップ（by 飛高）
+ * 2016.06.22 売掛ロックキーのコメントを解除(有効化)（by 若松）
+ * 2016.06.11 タブレットのバージョンアップ（by 飛高）
+ * 2016.05.24 売掛関連の標準値見直し（by 松田）
+ * 2016.05.11 売上伝票入力可能期間を定義（by 若松）
+ * 2016.05.11 店舗売上伝票採番単位を定義（by 若松）
+ * 2016.05.10 自動発注制御の分類区分を定義（by 鬼束）
+ * 2016.05.09 売上伝票種類を定義（by 若松）
+ * 2016.04.28 得意先コード桁数を定義（by 若松）
+ * 2016.04.28 得意先登録の初期値(税計算区分/税端数)を定義（by 若松）
+ * 2016.04.27 タブレット関連：タブレットアプリバージョン情報定義[TABLET_APP_VER]を追加（by 鈴木）
+ * 2016.04.27 autofax用データベース接続設定（by 中武）
+ * 2016.04.22 店舗別残高管理の有無を定義（by 若松）
+ * 2016.04.22 請求再締時に差分のみの集計の有無を定義（by 若松）
+ * 2016.04.18 仕入部門伝票登録の有無を定義（by 若松）
+ * 2016.04.07 画面種別(仕入管理)を定義（by 若松）
+ * 2016.04.05 タブレット用ロックキー追加（by 鬼束）
+ * 2016.02.24 BMS用データベース接続設定（by 中武）
+ * 2016.02.22 BMS用データベース接続設定（by 鬼束）
+ * 2015.11.15 卸web出荷取込関連(HIORO_SHUKKA_ERR_SHORI_PTN)を定義（by 井口）
+ * 2015.11.15 卸webＥＤＩ用DBを定義（by 井口）
+ * 2015.11.12 $UV["DISP_BALLIRISU_YN"]を追加（by 鬼束）
+ * 2015.10.29 卸webメンテ用DBを定義（by 鬼束）
+ * 2015.10.19 CGC売上DBを定義（by 鬼束）
+ * 2015.10.09 $UV["ORDER_DISP_LT_YN"]を追加（by 鬼束）
+ * 2015.09.10 WEBSLデータ連携ディレクトリ定義（by 鬼束）
+ * 2015.08.25 $UV["USE_OROSICD2"]を追加（by 鬼束）
+ * 2015.08.24 累積DBを定義（by 鬼束）
+ * 2015.08.18 CGC_URI_BACKUPDIRを追加（by 中武）
+ * 2015.07.21 $UV["WAR_BUMON"]を追加（by 鬼束）
+ * 2015.07.21 $UV["LOT_CHANGE_YN"]を追加（by 鬼束）
+ * 2015.06.17 $UV["ITEM_MENT_COMMENT_YN"]を追加（by 中武）
+ * 2015.06.08 $UV["ITEM_MENT_COMMENT_LEN"]を追加（by 中武）
+ * 2015.03.16 売価の自動補正区分に区分を追加（by 松田）
+ * 2015.01.27 仕入管理の入力項目値制御の各種定義（by 若松）
+ * 2015.01.05 20150105-01 単品売上集計対応 php.ini[memory_limit]定義追加[=PHP_INI_MEMORY_LIMIT_EXCEL]（by suzuki）
+ * 2014.12.01 商品サマリ関係の各種定義（by 中武）
+ * 2014.11.25 伝票入力可能期間(未来)を$UVに変更（by 若松）
+ * 2014.11.18 商品メンテ関係の各種定義（by 中武）
+ * 2014.11.17 計上日のクリア要否を定義（by 若松）
+ * 2014.11.02 促成青果出荷取込関連を定義（by 松田）
+ * 2014.10.22 本部店舗コードを定義（by 鬼束）
+ * 2014.10.10 費用部門の定義を変更（by 若松）
+ * 2014.09.29 経費移動を定義（by 若松）
+ * 2014.09.12 特売売価0の引当てパターンを定義（by 鬼束）
+ * 2014.09.09 店舗グループに"POS"を追加（by 吉瀬）
+ * 2014.09.05 ひむかカラー棚札レイアウト番号を定義（by 鬼束）
+ * 2014.09.05 棚札ダウンロードファイルのレイアウトを定義（by 鬼束）
+ * 2014.08.18 ＨＴ検品にて売変/廃棄の"-"非表示にする設定を追加（by 鬼束）
+ * 2014.08.11 特売適用パターンを定義 定番/特売相違時（by 鬼束）
+ * 2014.08.04 カテゴリー登録ファイルアップロード種別定義追加（by suzuki）
+ * 2014.07.31 カテゴリー登録採番名を定義（by suzuki）
+ * 2014.07.11 酒類販売管理関連を定義（by 中武）
+ * 2014.07.10 一般卸出荷取込関連を定義（by 松田）
+ * 2014.07.07 伝票最大行数を定義（by 若松）
+ * 2014.07.03 HT発注にて警告数量を定義（by 鬼束）
+ * 2014.06.23 取引先/取引先コードに入るコードの種類を定義（by 鬼束）
+ * 2014.05.20 本部発注の小数以下入力可否を追加（by 中武）
+ * 2014.04.15 旧hiwayデータ用DBを定義（by 鬼束）
+ * 2014.04.15 メルシー連携ファイル名追加（by 松田）
+ * 2014.03.19 旧hiwayデータ用DBを定義（by 鬼束）
+ * 2014.03.14 移動伝票種類を定義（by 若松）
+ * 2014.03.05 仕入伝票番号の入力必須の有無を定義（by 若松）
+ * 2014.03.04 棚札データの同KEYの扱いを追加（by 鬼束）
+ * 2014.03.03 生鮮確定猶予日数を定義（by 井口）
+ * 2014.03.03 ログアウトＵＲＬを定義（by 井口）
+ * 2014.03.02 未来日の商品引当てのlimitを定義（by 鬼束）
+ * 2014.02.25 加工指示ファイル名を定義（by 井口）
+ * 2014.02.25 USERAREAにDOWNLOADパスを定義（by 若松）
+ * 2014.02.22 売上として除外するための中分類コードを定義（by 松田）
+ * 2014.02.21 商品登録画面の標準売価項目の可否定義を追加（by 中武）
+ * 2014.02.20 棚札印刷関連の項目表示可否の定義を追加（by 鬼束）
+ * 2014.02.20 ＨＴ検品にて返品業者を制限しない定義を追加（by 鬼束）
+ * 2014.02.19 ＨＴ検品にて仕入/返品の"-"非表示にする設定を追加（by 鬼束）
+ * 2014.02.19 返品理由コードの伝票訂正を追加（by 若松）
+ * 2014.02.19 入力種別にアップロードを追加（by 若松）
+ * 2014.02.18 売上入力関連の定義を追加（by 松田）
+ * 2014.02.15 ＣＧＣ出荷取込関連の定数名変更（by 松田）
+ * 2014.02.14 バージョンアップに伴う調整（by 中武）
+ * 2014.02.12 商品登録関連を追加（by 中武）
+ * 2014.02.10 画面種別に生鮮分を追加（by 井口）
+ * 2014.02.08 メルシー連携関連の定義を追加（by 松田）
+ * 2014.02.07 特売グループの採番UNIT追加（by 中武）
+ * 2014.02.07 仕入商品名入力可否を定義（by 若松）
+ * 2014.02.05 損益管理月次集計のパターンを定義（by 松田）
+ * 2014.02.04 売上入力関連の定義を追加（by 松田）
+ * 2014.02.04 産地コード桁数を追加（by 井口）
+ * 2014.02.01 ユーザ単位区分初期値を追加（by 井口）
+ * 2014.01.30 メルシー出荷取込の連携関連を変更（by 松田）
+ * 2014.01.29 生鮮取引先関連を追加（by 井口）
+ * 2014.01.27 品名桁数関連を追加（by 井口）
+ * 2014.01.25 メルシー出荷取込の連携関連を追加（by 松田）
+ * 2014.01.04 発注種別(生鮮)値を変更（by 井口）
+ * 2013.12.30 生鮮帳票店舗展開数を定義（by 井口）
+ * 2013.12.29 生鮮帳票関連を定義（by 井口）
+ * 2013.12.26 便関連を定義（by 井口）
+ * 2013.12.25 納品先区分(市場)を定義（by 井口）
+ * 2013.12.21 生鮮カレンダー初期値を定義（by 井口）
+ * 2013.12.13 伝票種類を$UVで再定義（by 若松）
+ * 2013.12.13 生鮮商品コード桁数を定義（by 井口）
+ * 2013.12.12 税区分優先順を定義（by 井口）
+ * 2013.12.09 生鮮発注入力種別,発注種別(生鮮),画面種別(生鮮)を定義（by 井口）
+ * 2013.12.03 業務毎設定【本部発注】定義（by 谷坂）
+ * 2013.11.26 伝票分類枝番の表示可否を定義（by 若松）
+ * 2013.11.25 生鮮系の定義（by 井口）
+ * 2013.10.18 財務システム 勘定科目、科目区分整備（by 若松）
+ * 2013.09.24 ＰＯＳ定番ＪＡＮメンテデータ配信時刻を03:00⇒07:00に変更（by 吉瀬）
+ * 2013.09.20 店舗種別の定義取消(TENPO_SBT_PC - 81 - 加工センター)（by 松田）
+ * 2013.09.03 本ファイルの期首月日をdefaultとし、違う場合はuser_inc/const_XXXXXX.incに設定する（by 吉瀬）
+ * 2013.07.14 酒税関連帳票ＩＤを追加（by 井口）
+ * 2013.07.02 検品修正可能日数を定義（by 鬼束）
+ * 2013.06.29 酒類実績区分/棚卸データ区分/酒類棚卸有無判定件数を定義（by 井口）
+ * 2013.06.27 伝票区分（店舗発生）値引/廃棄を定義（by 鬼束）
+ * 2013.06.27 検品ロット区分初期値をUVにて定義（by 鬼束）
+ * 2013.06.20 酒類に相当する分類項目名を定義（by 井口）
+ * 2013.06.19 検品履歴表示可否をUVにて別作成（by 鬼束）
+ * 2013.06.19 未登録商品登録可否をUVにて別作成（by 鬼束）
+ * 2013.06.10 検品伝票SEQ区分をUVにて別作成（by 鬼束）
+ * 2013.06.07 伝票分類コードの桁数を定義（by 松田）
+ * 2013.05.29 仕入実績管理における経費仕入取扱区分を定義（by 松田）
+ * 2013.05.28 伝票区分 21：特売仕入を定義（by 若松）
+ * 2013.05.27 棚卸データの同KEYの扱いを追加（by 中武）
+ * 2013.05.16 "DEF_TORI_CD"取引先コード省略値を開発系と整合"999999"に修正(by 吉瀬)
+ * 2013.05.16 取引先登録における税区分・税計算区分の初期値を定義（by 松田）
+ * 2013.05.13 酒類関連の定義を追加（by 井口）
+ * 2013.05.13 移動入力の値入可否を追加（by 若松）
+ * 2013.05.11 特売関連の定義を追加（by 井口）
+ * 2013.05.09 損益管理における売上実績の抽出条件を定義（by 松田）
+ * 2013.05.09 仕入売価項目値の制御を定義（by 若松）
+ * 2013.05.07 EOB用選択分類区分を定義（by 鬼束）
+ * 2013.05.06 棚卸関連を定義（by 井口）
+ * 2013.04.30 酒類として除外するための酒類大分類コードを定義（by 井口）
+ * 2013.04.27 取引先登録における支払作成の初期値を定義（by 松田）
+ * 2013.04.20 店舗入力バッチＮＯ制御(INPUT_BATCH_NO_UP)（by 井口）
+ * 2013.04.20 CGC出荷取込の連携用ディレクトリ定義変更（by 松田）
+ * 2013.04.18 支払再締時の対象(差分/全て)を定義（by 松田）
+ * 2013.04.18 売価設定フラグを定義（by 井口）
+ * 2013.04.18 CGCマスタ取込の連携場所変更 → 共通define利用（by 中武）
+ * 2013.04.09 WEBSDデータ連携ディレクトリを定義（by 若松）
+ * 2013.04.08 部門コードのテーブル定義名(BUMON_CD_COLUMN_NM)を追加（by 井口）
+ * 2013.04.08 ダミー取引先コードを追加（by 若松）
+ * 2013.04.03 CGCマスタ取込の連携場所変更（by 中武）
+ * 2013.04.02 BASH_BASE_DIRを追加（by 鬼束）
+ * 2013.03.30 CGC出荷取込の連携関連を追加（by 松田）
+ * 2013.03.29 CGCマスタ取込の連携場所変更（by 中武）
+ * 2013.03.23 CGC特売企画の採番UNIT追加（by 中武）
+ * 2013.03.22 const集約に伴い、大幅見直し（by 中武）
+ * 2013.03.20 ＣＧＣマスタ連携を追加（by 中武）
+ * 2013.03.04 財務システムを追加（by 若松）
+ * 2013.01.11 分類桁数関連を追加（by inok）
+ * 2012.11.03 初期設定（by inok）
+ *------------------------------------------------------------------------------
+ */
+
+// デバッグモード
+	//define("DEBUG_MODE", false);	// デバッグモード(通常FALSE)
+	$UV["DEBUG_MODE"]				= false;									// デバッグモード(通常FALSE)
+// インクルードパス設定
+	define("BASE_DIR"				,"/home/sv01/htdocs_ssl/hiway13/standard/"); // ベース(内部)
+	define("COM_LIB_DIR"			,BASE_DIR."com_lib/");						// ライブラリ
+	define("COM_MOD_DIR"			,BASE_DIR."com_module/");					// モジュール
+	define("COM_INC_DIR"			,BASE_DIR."com_inc/");						// インクルード
+	define("COM_LOG_PATH"			,"/home/sv01/logs/hiway13/www/standard");	// ログ
+	define("COM_DATA_DIR"			,BASE_DIR."data/");							// データ
+	define("USER_INC_DIR"			,BASE_DIR."user_inc/");						// ユーザ設定ディレクトリ
+// ユーザエリア
+	define("BASE_USER_DIR"			,BASE_DIR."userarea/");						// ユーザベース(内部)
+	define("USER_DATA_DIR"			,BASE_USER_DIR.$_SESSION["KIGYO_CD"]."/");	// ユーザデータディレクトリ
+	define("USER_IMAGE_DIR"			,USER_DATA_DIR."image/");					// ユーザ画像ディレクトリ
+	define("USER_UPLOAD_DIR"		,USER_DATA_DIR."UPLOAD/");					// ユーザアップロードディレクトリ
+	define("USER_DOWNLOAD_DIR"		,USER_DATA_DIR."DOWNLOAD/");				// ユーザダウンロードディレクトリ
+	define("USER_PDF_DIR"			,USER_DATA_DIR."PDF/");						// ユーザＰＤＦ出力ディレクトリ
+// ロックファイル
+	define("LOCK_XXXXX"				,USER_DATA_DIR."locks/xxxxx_");
+// URL
+	define("TOP_URL"				,"/".$_SESSION["PACKAGE_ID"]."/".$_SESSION["CLIENT_SBT"]."/");
+	////define("APP_URL","/acmz/honbu/");
+	define("COM_CSS_URL"			,TOP_URL."com_css/");
+	define("COM_JS_URL"				,TOP_URL."com_js/");
+	define("COM_IMG_URL"			,TOP_URL."com_img/");
+	define("AJX_URL"				,TOP_URL."honbu/ajx/");
+	define("PDF_URL"				,"https://172.16.3.26/hiesp/pdf/servlet/");
+// サブシステムURL(本部)
+	define("HONBU_URL"				,TOP_URL."honbu/");
+	define("HONBU_PC_URL"			,TOP_URL."honbu/pc/");
+// サブシステムURL(店舗)
+	define("TENPO_URL"				,TOP_URL."tenpo/");
+	define("TENPO_PC_URL"			,TOP_URL."tenpo/pc/");
+// メニュー制御関連
+	define("DEF_URL"				,TOP_URL."tenpo/pc/menu/top.php");
+	define("DEF_URL_TENPO"			,TOP_URL."tenpo/pc/menu/top.php");
+	define("DEF_URL_TENPO_SUB"		,TOP_URL."tenpo/pc/menu/sub.php");
+	define("DEF_URL_HONBU"			,TOP_URL."honbu/pc/menu/top.php");
+	define("DEF_URL_HONBU_SUB"		,TOP_URL."honbu/pc/menu/sub.php");	// 2010.11.13 追加
+	define("DEF_URL_HANDY"			,TOP_URL."tenpo/Handy/top.php");
+	define("DEF_MENU_PTN"			,"");
+	// 2019.07.18 d.takahashi 追加  卸用
+	define("DEF_URL_WEB_TABLET_ORO"	,TOP_URL."tenpo/webTablet/menu_oro.php");
+	// 2019.02.19 d.takahashi 追加  WEB タブレット用の URL
+	define("DEF_URL_WEB_TABLET"		,TOP_URL."tenpo/webTablet/menu.php");
+	//define("DEF_URL"           , "pc/menu/top.php");
+	//define("DEF_URL_TENPO"     , "tenpo/pc/menu/top.php");
+	//define("DEF_URL_TENPO_SUB" , "tenpo/pc/menu/sub.php");
+	//define("DEF_URL_HONBU"     , "honbu/pc/menu/top.php");
+	//define("DEF_URL_HONBU_SUB" , "honbu/pc/menu/sub.php");	// 2010.11.13 追加
+	//define("DEF_URL_HANDY"     , "tenpo/Handy/");
+// ログアウトＵＲＬ
+	define("LOGOUT_URL"				,"/".$_SESSION["PACKAGE_ID"]."/");
+// bashベース
+	define("BASH_BASE_DIR"			,"/home/sv01/bash/hiway13/");
+// ヘルプアイコン 
+	define("IMG_Q", "../img/question.gif");
+
+// ini操作関連
+	//使用メモリ容量(for EXCEL) 
+	define("PHP_INI_MEMORY_LIMIT_EXCEL"			,"320M");
+
+//-----------------------------------------------------------
+// データ関連（パス/ファイル名等）
+//-----------------------------------------------------------
+/* フォルダ */
+	//define("HAISIN_TMP_PATH"		,APP_PATH."data/order/himuka_eos/");
+	//define("HAISIN_BACKUP_PATH"	,APP_PATH."data/order/himuka_eos/backup/");
+	//define("HAISIN_PATH"				,"/dev-websd_link/himuka/host/send/order/");
+/* ファイル */
+	define("FNAME_VAM1"				,"VAM1_REC.TXT");				// 品名トらん
+	define("FNAME_VAI0"				,"VAI0_REC.TXT");				// 店舗商品
+
+	define("FNAME_CGC_SHUKKA"		,"SYUKA_CGC");					// 出荷データ(ＣＧＣ)
+	define("FNAME_ORO_SHUKKA"		,"SYUKA");					// 出荷データ(一般卸)
+	define("FNAME_MERCI_SHUKKA"		,"shipment");					// メルシー出荷データ
+	define("FNAME_MERCI_JURYO"		,"receiving");					// メルシー受領データ
+	define("FNAME_MERCI_HENPIN"		,"return");						// メルシー返品データ
+	define("FNAME_MERCI_HENPIN_NEBIKI"	,"henpin_nebiki");			// メルシー返品/値引データ(物流革命)
+	define("FNAME_SOKUSEI_SHUKKA"	,"SYUKA");						// 出荷データ(促成青果)
+
+/* SPV FCC連携ディレクトリ */
+	define("SPV_MASTERFILE_DIR"     ,"/home/sv01/bash/hiway13/data/master/spv/");
+
+	define("SPV_URIAGEFILE_DIR"     ,"/dev-websd_link/himuka/fcc/recv/uri/");
+
+//-----------------------------------------------------------
+// 外部システム連携関連
+//-----------------------------------------------------------
+// WEBSDデータ連携ディレクトリ
+	define("USERDATA_WEBSD_DIR"     ,BASH_BASE_DIR."user_data/dev-websd/");
+	define("WEBSD_HIMUKA_DIR"       ,USERDATA_WEBSD_DIR."himuka/");
+	define("WEBSD_SOKUSEI_DIR"      ,USERDATA_WEBSD_DIR."sokusei/");
+// WEBSLデータ連携ディレクトリ
+	define("USERDATA_WEBSL_DIR"     ,BASH_BASE_DIR."user_data/dev-websl/");
+/* ＣＧＣマスタファイル 下へ引っ越し */
+//	define("CGC_MASTER_REMOTEDIR",WEBSD_HIMUKA_DIR."hnet003/recv/master/cgc/");
+//	define("CGC_MASTER_LOCALDIR" ,BASH_BASE_DIR."data/master/cgc/");
+//	define("CGC_MASTER_LOCALBAKDIR",CGC_MASTER_LOCALDIR."backup/");
+/* ＣＧＣ出荷データ */
+	define("CGC_SHUKKA_REMOTEDIR",WEBSD_HIMUKA_DIR."websg/recv/shukka/");
+	define("CGC_SHUKKA_LOCALDIR" ,BASH_BASE_DIR."data/shukka/");
+/* ＣＧＣ売上生データファイル */
+	define("CGC_URI_BACKUPDIR","/home/sv01/bash/hiway13/data/uri/920088/backup/");
+/* 一般卸出荷データ */
+	define("ORO_SHUKKA_REMOTEDIR",WEBSD_HIMUKA_DIR."websg/recv/shukka/");
+	define("ORO_SHUKKA_LOCALDIR" ,BASH_BASE_DIR."data/shukka/");
+/* 促成青果出荷データ */
+	define("SOKUSEI_SHUKKA_REMOTEDIR"   ,WEBSD_SOKUSEI_DIR."RECV/");
+	define("SOKUSEI_SHUKKA_LOCALDIR"    ,BASH_BASE_DIR."data/shukka/sokusei/recv/");
+
+// WEBSI-EXC1データ連携ディレクトリ
+	define("USERDATA_WEBSI_EXC1_DIR"    ,BASH_BASE_DIR."user_data/dev-websi-exc1/");
+	define("WEBSI_EXC1_MERCI_DIR"       ,USERDATA_WEBSI_EXC1_DIR."merci/");
+/* メルシー出荷データ */
+	define("MERCI_SHUKKA_REMOTEDIR"     ,WEBSI_EXC1_MERCI_DIR."recv/shipment/");
+	define("MERCI_SHUKKA_LOCALDIR"      ,BASH_BASE_DIR."data/shukka/merci/recv/");
+/* メルシー受領データ */
+	define("MERCI_JURYO_REMOTEDIR"      ,WEBSI_EXC1_MERCI_DIR."send/receiving/");
+	define("MERCI_JURYO_LOCALDIR"       ,BASH_BASE_DIR."data/siire/merci/send/");
+/* メルシー返品データ */
+	define("MERCI_HENPIN_REMOTEDIR"     ,WEBSI_EXC1_MERCI_DIR."send/return/");
+/* JOVY出荷データ */
+	define("JOVY_SHUKKA_LOCALDIR"       ,BASH_BASE_DIR."data/shukka/jovy/recv/");
+// WEBSI-EXC2データ連携ディレクトリ
+	define("USERDATA_EXC2_DIR"          ,BASH_BASE_DIR."user_data/dev-websi-exc2/");
+
+/* ＣＧＣマスタファイル(新 20.10.01〜) */
+	define("CGC_MASTER_REMOTEDIR",USERDATA_EXC2_DIR."data/recv/");
+	define("CGC_MASTER_LOCALDIR" ,BASH_BASE_DIR."data/master/cgc/");
+	define("CGC_MASTER_LOCALBAKDIR",CGC_MASTER_LOCALDIR."backup/");
+
+//-----------------------------------------------------------
+// DB関連
+//-----------------------------------------------------------
+// 店舗DBの有無
+	$UV["TENPODB_YN"]			= "Y";		// Y：店舗DB有り N：店舗DB無し
+
+// DB情報：初期
+	define("INIT_DBHOST"            ,"172.16.3.28");
+	define("INIT_DBNAME"            ,"app_db");
+	define("INIT_DBUSER"            ,"kenpin");
+	define("INIT_DBPASSWORD"        ,"kenpin");
+	define("INIT_DBPORT"            ,"5432");
+// DB情報：初期テスト
+	define("INIT_DBHOST_TEST"       ,"172.16.3.28");
+	define("INIT_DBNAME_TEST"       ,"app_db");
+// DB情報：共通（共通商品など）
+	define("KYOTSU_DBHOST"          ,"10.0.61.21");
+	define("KYOTSU_DBNAME"          ,"kenpin");
+	define("KYOTSU_DBUSER"          ,"kenpin");
+	define("KYOTSU_DBPASSWORD"      ,"kenpin");
+	define("KYOTSU_DBPORT"          ,"5432");
+// DB情報：リストサーバ
+//	define("PDF_DBHOST"             ,"10.0.61.26");
+	define("PDF_DBHOST"             ,"172.16.3.26");
+	define("PDF_DBNAME"             ,"kenpin");
+	define("PDF_DBUSER"             ,"kenpin");
+	define("PDF_DBPASSWORD"         ,"kenpin");
+	define("PDF_DBPORT"             ,"5432");
+// 旧hiway用データベース接続設定 */
+	define("OLDHIWAY_DBHOST"				,"172.16.3.28");
+	define("OLDHIWAY_DBPORT"				,"5432");
+	define("OLDHIWAY_DBNAME"				,"old_hiway");
+	define("OLDHIWAY_DBUSER"				,"kenpin");
+	define("OLDHIWAY_DBPASS"				,"kenpin");
+// 累積データベース接続設定 */
+//	define("RUISEKI_DBHOST"				,"10.0.81.136");
+//	define("RUISEKI_DBPORT"				,"5432");
+//	define("RUISEKI_DBNAME"				,"R");
+//	define("RUISEKI_DBUSER"				,"kenpin");
+//	define("RUISEKI_DBPASS"				,"kenpin");
+// CGC売上データベース接続設定 */
+	define("CGCU_DBHOST"						,"172.16.3.28");
+	define("CGCU_DBPORT"						,"5432");
+	define("CGCU_DBNAME"						,"cgc_uri");
+	define("CGCU_DBUSER"						,"kenpin");
+	define("CGCU_DBPASS"						,"kenpin");
+// 卸webメンテデータベース接続設定 */
+	define("OLDMAINTE_DBHOST"				,"172.16.3.20");
+	define("OLDMAINTE_DBPORT"				,"5432");
+	define("OLDMAINTE_DBNAME"				,"mainte");
+	define("OLDMAINTE_DBUSER"				,"sv01");
+	define("OLDMAINTE_DBPASS"				,"sv01");
+// 卸webＥＤＩデータベース接続設定 */
+	define("HIORO_DBHOST"					,"172.16.3.26");
+	define("HIORO_DBPORT"					,"5432");
+	define("HIORO_DBNAME"					,"99999999");
+	define("HIORO_DBUSER"					,"kenpin");
+	define("HIORO_DBPASS"					,"kenpin");
+// BMS用データベース接続設定 */
+	define("BMSDATA_DBHOST"					,"172.16.3.28");
+	define("BMSDATA_DBPORT"					,"5432");
+	define("BMSDATA_DBNAME"					,"bms_data_h13");
+	define("BMSDATA_DBUSER"					,"kenpin");
+	define("BMSDATA_DBPASS"					,"kenpin");
+// 旧hiwayBMS用データベース接続設定 */
+	define("OLDHIBMS_DBHOST"				,"172.16.3.28");
+	define("OLDHIBMS_DBPORT"				,"5432");
+	define("OLDHIBMS_DBNAME"				,"bms_data");
+	define("OLDHIBMS_DBUSER"				,"kenpin");
+	define("OLDHIBMS_DBPASS"				,"kenpin");
+// アタックスBMS用データベース接続設定 */
+	define("OLDHIBMS_AT_DBHOST"				,"172.16.3.28");
+	define("OLDHIBMS_AT_DBPORT"				,"5432");
+	define("OLDHIBMS_AT_DBNAME"				,"bms_data_at");
+	define("OLDHIBMS_AT_DBUSER"				,"kenpin");
+	define("OLDHIBMS_AT_DBPASS"				,"kenpin");
+// FAXDB用データベース接続設定 */
+	define("FAX_DBHOST"					,"172.16.3.26");
+	define("FAX_DBPORT"					,"5432");
+	define("FAX_DBNAME"					,"autofax");
+	define("FAX_DBUSER"					,"autofax");
+	define("FAX_DBPASS"					,"autofax");
+// SPV本部データベース 接続設定
+	define("SPVHONBU_DBHOST"	,"172.16.3.32");
+	define("SPVHONBU_DBPORT"	,"5432");
+	define("SPVHONBU_DBNAME"	,"spv");
+	define("SPVHONBU_DBUSER"	,"kenpin");
+	define("SPVHONBU_DBPASS"	,"kenpin");
+
+// 2018.06.18 d.takahashi START =>
+// 電子保存用のデータベース接続設定 (本番)
+	// 本番系は 10.0.61.79
+	define("DENSHI_HOZON_DBHOST"		,"172.16.3.28");
+	define("DENSHI_HOZON_DBPORT"		,"5432");
+	define("DENSHI_HOZON_DBNAME"		,"D");
+	define("DENSHI_HOZON_DBUSER"		,"kenpin");
+	define("DENSHI_HOZON_DBPASS"		,"kenpin");
+// 2018.06.18 d.takahashi END   =>
+// 2018.12.18 d.takahashi START =>
+    // 卸共通DB のデータベース接続情報設定
+	define("OROSHI_COM_DBHOST"			,"172.16.3.28");
+	define("OROSHI_COM_DBPORT"			,"5432");
+	define("OROSHI_COM_DBNAME"			,"oroshi");
+	define("OROSHI_COM_DBUSER"			,"kenpin");
+	define("OROSHI_COM_DBPASS"			,"kenpin");
+// 2018.12.18 d.takahashi END   =>
+
+// DB情報：本社ＤＢエイリアス
+	define("HONSHA_DBHOST_ALIAS"    ,"");
+	define("TENPO_DBHOST_ALIAS"     ,"");
+// TBL情報：サーバ情報
+	define("TBL_SERVER_INFO_NM"     ,"サーバ情報");
+// TBL情報：店舗処理情報
+	define("TBL_TENPO_SHORI_INFO_NM","店舗情報テーブル");
+
+//-------------------  旧バッチ系 ↓------------------
+/* 基本情報データベース接続設定 */
+	define("APP_DBHOST"				,INIT_DBHOST);
+	define("APP_DBNAME"				,INIT_DBNAME);
+	define("APP_DBUSER"				,INIT_DBUSER);
+	define("APP_DBPASS"				,INIT_DBPASSWORD);
+	define("APP_DBPORT"				,INIT_DBPORT);
+
+/* 基本情報データベース接続設定 */
+	define("COM_DBHOST"				,"172.16.3.28");
+	define("COM_DBNAME"				,"922234");
+	define("COM_DBUSER"				,"kenpin");
+	define("COM_DBPASS"				,"kenpin");
+	define("COM_DBPORT"				,"5432");
+
+/* 基本情報データベース（財務）接続設定 */
+	define("ZAIMU_DBHOST"			,"172.16.3.28");
+	define("ZAIMU_DBNAME"			,"922234Z1");
+	define("ZAIMU_DBUSER"			,"kenpin");
+	define("ZAIMU_DBPASS"			,"kenpin");
+	define("ZAIMU_DBPORT"			,"5432");
+
+/* アルフデータベース接続設定 */
+	define("ALF_DBHOST"				,"172.16.3.28");
+	define("ALF_DBPORT"				,"5432");
+	define("ALF_DBNAME"				,"alfhht");
+	define("ALF_DBUSER"				,"kenpin");
+	define("ALF_DBPASS"				,"kenpin");
+
+/* アルフデータベース出力時接続設定 */
+//	define("ALFOUT_DBHOST"			,"");	// 本番は
+//	define("ALFOUT_DBPORT"			,"5432");
+//	define("ALFOUT_DBNAME"			,"alfhht_test");	// 本番は
+//	define("ALFOUT_DBUSER"			,"kenpin");		// 本番はsv01
+//	define("ALFOUT_DBPASS"			,"kenpin");		// 本番はsv01
+
+/* ＤＷＨデータベース接続設定 */
+//	define("DWH_DBHOST"				,"172.16.3.28"); // ←本番?
+//	define("DWH_DBPORT"				,"5432");
+//	define("DWH_DBNAME"				,"922234R1");
+//	define("DWH_DBUSER"				,"kenpin");
+//	define("DWH_DBPASS"				,"kenpin");
+
+
+/* 出荷データのセット場所 */
+	//define("SYUKKA_DATA_SERVER"	,"");
+	//define("SYUKKA_DATA_USER"		,"HOST");
+	//define("SYUKKA_DATA_PASS"		,"HOST");
+	//define("SYUKKA_DATA_PATH"		,"/home/HOST/HIBIS/RECV/");
+
+/* ホストFTPデータのセット場所 */
+	//define("HOST_DATA_SERVER"		,"");
+	//define("HOST_DATA_USER"		,"HOST");
+	//define("HOST_DATA_PASS"		,"HOST");
+
+//-------------------  旧バッチ系 ↑------------------
+
+//-----------------------------------------------------------
+// ＰＯＳメンテファイル配信時刻指定（NS-1⇒POS配信予定時刻）2014/02/26 const_XXXXXX.incに移動
+//-----------------------------------------------------------
+//	define("POS_SEND_TIME_MNTJAN"		, "0700");		// 定番ＪＡＮメンテ
+//	define("POS_SEND_TIME_MNTCAM"		, "0530");		// 特売メンテ
+//	define("POS_SEND_TIME_MNTCLS"		, "0600");		// クラスメンテ
+//	define("POS_SEND_TIME_MNTLIN"		, "0600");		// ラインメンテ
+//	define("POS_SEND_TIME_MNTDP"		, "0600");		// 部門メンテ
+//-----------------------------------------------------------
+// 移行運用期間の暫定処置
+//-----------------------------------------------------------
+	define("HONBU_ORDER_CAN_CHANGE_OROSI" 	,"N");
+
+
+//-----------------------------------------------------------
+// システム制御関連
+//-----------------------------------------------------------
+	$UV["USER_KBN"]					= "himuka";				// ユーザー区分
+	define("KANA_BYTE_NUM"			,"1");	// カナ文字のバイト数 (サーバにより,1 or 2)
+//-----------------------------------------------------------
+// 運営会社情報
+//-----------------------------------------------------------
+	define("ADMIN_KIGYOCD"			,"999999");
+	define("ADMIN_KIGYONM"			,"株式会社ひむか流通ネットワーク");
+//-----------------------------------------------------------
+// 会社情報
+//-----------------------------------------------------------
+// 会社コード等
+	define("KIGYO_CD"				,$_SESSION["KIGYO_CD"]);	// 企業コード
+	define("DAIHYO_CD"				,KIGYO_CD);					// 代表店舗コード
+	define("HONSHA_CD"				,DAIHYO_CD);				// 本社コード
+	define("RUISEKI_CD"				,DAIHYO_CD."R1");			// 累積用コード
+	$UV["ZAIMU_CD"]					= "922234Z1";				// 財務コード
+	$UV["KIGYO_NM"]					= $_SESSION["KIGYO_NM"];	// 会社名
+	$UV["TEL_NO_KEIRI"]				= "XXXX-XX-XXXX";			// 電話番号(経理課)
+// 期首月日
+	$UV["KISYU_MMDD"]				= "0401";					// 期首日(default)
+// VANコード
+	define("VAN_COM_KIGYO_CD"		,"000000");					// VAN共通小売企業コード
+	define("VAN_DAIHYO_CD"			,"92907701");				// VAN側代表店舗コード
+	define("VAN_ZENTEN_CD"			,"92907799");				// VAN用全店指定コード
+// 本部店舗コードを定義
+	$UV["HONBU_TENPO_CD"]					= "XXX";
+	$UV["HONBU_TENPO_CD_DB"]			= "XXXXXXXX";
+// ＳＰＶ会社情報
+	define("SPV_KIGYO_CD"					,"990023");													// スーパーバリュー九州本部EDIコード
+	define("SPV_KIGYO_NM"					,"スーパーバリュー九州本部");				// スーパーバリュー九州本部名称
+	define("SPV_KIGYO_NM_KANA"		,"ｽｰﾊﾟｰﾊﾞﾘｭｰｷｭｳｼｭｳﾎﾝﾌﾞ");						// スーパーバリュー九州本部名称カナ
+
+//-----------------------------------------------------------
+// 基本値
+//-----------------------------------------------------------
+// 初期値
+	define("DEF_HAIBAN_DT"			, "20891231");				// 廃番日
+	define("DEF_TEKIYO_SDT"			, "00000000");				// 適用開始日
+	define("DEF_TEKIYO_EDT"			, "99999999");				// 適用終了日
+// 使用開始日
+	$UV["SIYO_SDT_IS_TODAY"]		= "Y";						// 使用開始日が当日か翌日か
+// 商品コード種別
+	define("ITEM_CD_SBT_INSTORE"	, "1");		// インストアコード
+	define("ITEM_CD_SBT_NONPLU"		, "2");		// NONPLUコード
+	define("ITEM_CD_SBT_ORG"		, "3");		// 独自コード
+	define("ITEM_CD_SBT_SC_NONPLU" ,"4");	// 生産者コーナーNONPLU
+// 桁数（コード関連）
+	$UV["LEN_SHORT_TENPO_CD"]		= "5";		// 短縮店舗コード
+// 桁数（産地コード）
+	$UV["LEN_SANCHI_CD"]			= "3";		// 産地コード
+// 桁数（生鮮商品コード）
+	$UV["LEN_ITEM_CD_FRESH"]		= "6";		// 生鮮商品コード
+// 桁数（特売関連）
+	$UV["LEN_TOKU_GRP_CD"]			= "8";		// 特売グループコード
+	$UV["LEN_TOKU_KIKAKU_CD"]		= "10";	// 特売企画コード(2011.04.28 9桁⇒10桁)
+	$UV["LEN_TOKU_KIKAKU_CD_OLD"] 	= "4";		// 特売企画コード(旧コード)
+	$UV["LEN_POS_KIKAKU_CD"]		= "4";		// 特売企画コード
+// 桁数（伝票関連）
+	$UV["LEN_DEN_NO"]				= "9";		// 伝票番号桁数
+// 整数部桁数設定
+	define("LEN_INT_JUCHU_GENKA"	, "6");		// 原単価/仕入単価
+	define("LEN_INT_SHUKKA_GENKA"	, "7");		// 原単価/仕入単価
+	define("LEN_INT_GENKA"			, "7");		// 原単価/仕入単価
+	define("LEN_INT_BAIKA"			, "7");		// 原単価/仕入単価
+	define("LEN_INT_SURYO"			, "5");		// 数量
+	define("LEN_INT_JURYO"			, "5");		// 重量
+// 小数以下桁数設定
+	define("LEN_DECIMAL_GENKA"		,"2");		// 原単価/仕入単価
+	define("LEN_DECIMAL_SURYO"		,"1");		// 数量
+	define("LEN_DECIMAL_JURYO"		,"3");		// 重量
+// 品名桁数
+	$UV["LEN_ITEM_NM_KJ"]			= "30";		// 品名漢字桁数
+	$UV["LEN_ITEM_NM_KN"]			= "30";		// 品名カナ桁数
+	$UV["LEN_POS_ITEM_NM_KJ"]		= "30";		// ＰＯＳ品名桁数
+	$UV["LEN_POS_ITEM_NM_KN"]		= "30";		// ＰＯＳ品名カナ桁数
+// フラグ共通
+	define("COM_FLG_YET"        ,"0");		// 未
+	define("COM_FLG_NO"         ,"9");		// 不要
+// 削除フラグ
+	define("DEL_FLG_DELETED"    ,"1");
+	define("DEL_FLG_ALIVE"      ,"0");
+// 送信フラグ
+	define("SEND_FLG_SETTING"   ,"1");		// 入力中　（公開不可）
+	define("SEND_FLG_SET"       ,"2");		// 入力完了（公開可能）
+	define("SEND_FLG_CHECKING"  ,"3");		// 承認中
+	define("SEND_FLG_CHECKED"   ,"4");		// 承認済み（確定待ち）
+	define("SEND_FLG_FIXING"    ,"3");		// 確定中
+	define("SEND_FLG_FIXED"     ,"4");		// 確定済み（変更不可）
+// 確定フラグ
+	define("KAKUTEI_FLG_YET"    ,"0");		// 未　　（確定不可）
+	define("KAKUTEI_FLG_SETTING","1");		// 確認中（確定不可）
+	define("KAKUTEI_FLG_SET"    ,"2");		// 確認　（確定可能）
+	define("KAKUTEI_FLG_FIXING" ,"3");		// 確定中（変更不可）
+	define("KAKUTEI_FLG_FIXED"  ,"4");		// 確定済（変更不可）
+// 在庫計上フラグ
+	define("ZAIKO_FLG_YET"      ,"0");		// 未　　
+	define("ZAIKO_FLG_FIXING"   ,"1");		// 計上中（変更不可）
+	define("ZAIKO_FLG_FIXED"    ,"2");		// 計上済（変更不可）
+	define("ZAIKO_FLG_NO"       ,"9");		// 不要　
+// 売価設定フラグ
+	define("BAIKA_SET_FLG_GROUP","G");		// グループ
+	define("BAIKA_SET_FLG_HONBU","1");		// 本部
+	define("BAIKA_SET_FLG_TENPO","3");		// 店舗
+// 処理日の切り替わり時刻
+	define("SHORIBI_TM"      ,"0600");		// 06:00を処理日変更の境界とする
+// ＥＯＳ区分
+	define("EOS_KBN_Y" ,"1");
+	define("EOS_KBN_N" ,"0");
+// 発注種別
+	define("ORDER_SBT_TENPO"      ,"01");
+	define("ORDER_SBT_EOB"        ,"11");
+	define("ORDER_SBT_EOB_TOKU"   ,"12");
+	define("ORDER_SBT_FRESH"      ,"31");		// 31：生鮮発注		2014.01.04 修正(41⇒31)
+	define("ORDER_SBT_FRESH_TENPO","32");		// 32：生鮮発注（アルフ）
+	define("ORDER_SBT_FRESH_EOB"  ,"33");		// 33：生鮮発注（ＥＯＢ）
+	define("ORDER_SBT_EX"         ,"41");		// 41：外部システム	2014.01.04 追加
+	define("ORDER_SBT_HONBU"      ,"51");
+	define("ORDER_SBT_HONBU_TOKU" ,"52");
+	define("ORDER_SBT_JUCHU"      ,"61");		// 61：受注入力
+	define("ORDER_SBT_JUCHU_KIKAN","62");		// 62：受注入力(期間)
+	define("ORDER_SBT_JUCHU_TOKU" ,"63");		// 63：受注入力(特売)
+	define("ORDER_SBT_JUCHU_SHUKKA","67");		// 67：受注出荷
+	define("ORDER_SBT_SHUPPO"     ,"71");		// 71：出報入力
+	define("ORDER_SBT_SHUPPO_DATA","72");		// 72：出報データ
+	define("ORDER_SBT_SHUKKO"     ,"81");		// 81：出庫データ
+// 売上種別
+//	define("URI_SBT_IPPAN"           ,"01");
+//	define("URI_SBT_NAIBU"           ,"02");
+//	define("URI_SBT_SHUPPO"          ,"11");
+//	define("URI_SBT_SHUPPO_KUMISEI"  ,"12");
+// 仕入種別
+//	define("SIIRE_SBT_IPPAN"         ,"51");
+	define("SIIRE_SBT_NAIBU"         ,"52");	// 52：内部仕入
+//	define("SIIRE_SBT_FURIKAE"       ,"53");
+//	define("SIIRE_SBT_SHUPPO"        ,"61");
+//	define("SIIRE_SBT_SHUPPO_KUMISEI","62");
+//	define("SIIRE_SBT_TESURYO_HONSHA","71");
+//	define("SIIRE_SBT_TESURYO_TC"    ,"72");
+//	define("SIIRE_SBT_TESURYO_SHUPPO","73");
+	define("SIIRE_SBT_NO"            ,"91");	// 91：非仕入
+// 移動種別
+	define("IDO_SBT_GAIBU"           ,"91");	// 91：外部売上
+	define("IDO_SBT_NAIBU"           ,"92");	// 92：内部売上
+// 入力種別
+	define("INPUT_SBT_TENPO_IKKATSU" ,"00");	// 00：店舗一括入力
+	define("INPUT_SBT_TENPO_MEISAI"  ,"01");	// 01：店舗明細入力
+	define("INPUT_SBT_TENPO_EOS"     ,"10");	// 10：店舗EOS
+	define("INPUT_SBT_TENPO_SHUKKA"  ,"21");	// 21：店舗出荷確定
+	define("INPUT_SBT_TENPO_UPLOAD"  ,"22");	// 22：店舗アップロード
+	define("INPUT_SBT_TENPO_PC"      ,"30");	// 30：店舗PC確定
+	define("INPUT_SBT_HONSHA"        ,"50");	// 50：本社仕入
+	define("INPUT_SBT_TESURYO"       ,"70");	// 70：手数料計算
+	define("INPUT_SBT_ZAIMU"         ,"90");	// 90：財務発生
+// 棚卸種別（2013.05.06 追加 by inok）
+	define("TANA_SBT_ALF_TANA"       ,"01");	// 01：ALF棚卸
+	define("TANA_SBT_ALF_CHIN"       ,"02");	// 02：ALF陳列
+	define("TANA_SBT_EOB_TANA"       ,"11");	// 11：EOB棚卸
+	define("TANA_SBT_EOB_CHIN"       ,"12");	// 12：EOB陳列
+	// add by hirayama
+	define("TANA_SBT_KEYENCE_TANA"   ,"21");	// 21：KEYENCEネイティブアプリ棚卸
+	define("TANA_SBT_KEYENCE_CHIN"   ,"22");	// 22：KEYENCEネイティブアプリ陳列
+
+// 定番特売区分
+	define("TOKU_KBN_TEIBAN"		,"0");
+	define("TOKU_KBN_TOKU"			,"1");
+// 特売種別グループ
+	define("TOKU_SBT_GRP_TOKU"		,"TOKU");
+	define("TOKU_SBT_GRP_EDLP"		,"EDLP");
+	define("TOKU_SBT_GRP_YASU"		,"YASU");
+	define("TOKU_SBT_GRP_CGC_Y"		,"CGC_Y");	//CGCのみ：仮の値
+	define("TOKU_SBT_GRP_CGC_N"		,"CGC_N");	//CGC以外：仮の値
+// 特売優先順
+	$UV["TOKU_RANK_FLG"]			= "0";		// 0：安値優先 1：種別優先順に従う
+// 特売適用パターン
+	$UV["TOKU_TEKIYO_PTN"]			= "A";		// A：定番入力⇒定番発注可能特売種別以上を適用、B：定番入力⇒全て
+// 特売適用パターン（定番/特売で取引先相違時）
+	$UV["TOKU_TEKIYO_PTN_TORI"]		= "2";		// 1：定番/特売一致した時のみ（or 特売null）2：定番がCGC以外はCGC特売は非適用 3：全て適用
+// 定番発注可能特売種別
+	$UV["TOKU_SBT_TEIBAN_ORDER"]	= "4";		// 定番入力時に適用できる特売種別（この値以上の特売種別を適用出来る）
+// 引当てを行わない特売を定義
+	$UV["TOKU_NOT_USE"]						= "8";		// 特売種別 8(本部発注) / 9(ＰＯＳ特売)  （この値以上の特売種別は店舗からの発注では適用しない）
+// 店舗売価専用特売種別
+	$UV["TOKU_SBT_BAIKA"]			= "9";		// ACMZ版安値EDLP（ACMZでは特売種別=5に相当）
+// 特売期間単品設定有無（2013.05.11 追加）
+	$UV["TOKU_KIKAN_TANPIN_YN"]		= "N";		// 特売期間を単品設定するか
+// 特売仕入単価設定有無（2013.05.11 追加）
+	$UV["TOKU_SIIRE_TANKA_YN"]		= "N";		// 特売仕入単価を運用するか
+// 未来日の商品引当てのlimitを定義
+	$UV["GET_MIRAIBI_LIMIT"]			= "25";		// 何日先の使用開始日までみるか定義（←25日先まで）
+// 特売売価0の引当てパターン
+	$UV["TOKU_BAIKAZERO_TEI_YN"]			= "Y";		// 特売売価0の時は定番を採用するか
+// ハンディ特売種別の新色分け
+	$UV["TOKU_NEW_IROWAKE_YN"]			= "N";		// ハンディ特売種別の新色分けを採用するか
+
+// 伝票区分（店舗発生）
+	define("DEN_KBN_ORDER"        ,"00");		// 00：定番発注
+	define("DEN_KBN_ORDER_TOKU"   ,"10");		// 10：特売発注
+	define("DEN_KBN_SIIRE"        ,"20");		// 20：仕入
+	define("DEN_KBN_SIIRE_TOKU"   ,"21");		// 21：仕入特売
+	define("DEN_KBN_KEIHI"        ,"22");		// 22：経費仕入
+	define("DEN_KBN_HENPIN"       ,"40");		// 40：返品
+	define("DEN_KBN_HENPIN_TOKU"  ,"41");		// 41：返品特売
+	define("DEN_KBN_HENPIN_KEIHI" ,"42");		// 42：返品経費
+	define("DEN_KBN_IDO"          ,"60");		// 60：移動
+	define("DEN_KBN_IDO_TOKU"     ,"61");		// 61：移動特売
+	define("DEN_KBN_IDO_KEIHI"    ,"62");		// 62：経費移動
+	define("DEN_KBN_NEAGE"        ,"70");		// 70：値上
+	define("DEN_KBN_NEAGE_TOKU"   ,"71");		// 71：値上特売
+	define("DEN_KBN_NESAGE"       ,"80");		// 80：値下
+	define("DEN_KBN_NESAGE_TOKU"  ,"81");		// 81：値下特売
+	define("DEN_KBN_NEBIKI"       ,"90");		// 90：値引
+	define("DEN_KBN_NEBIKI_TOKU"  ,"91");		// 91：値引特売
+	define("DEN_KBN_NEBIKI_KEIHI" ,"92");		// 92：値引経費
+	define("DEN_KBN_NEBIKI_BUN"   ,"96");		// 96：値引部門
+	define("DEN_KBN_NEBIKIG"       ,"93");		// 93：業者一括値引
+	define("DEN_KBN_NEBIKIG_TOKU"  ,"94");		// 94：業者一括値引特売
+	define("DEN_KBN_NEBIKIG_KEIHI" ,"95");		// 95：業者一括値引経費
+	define("DEN_KBN_NEBIKI_REBATE","9A");		// 9A：値引割戻
+	define("DEN_KBN_HAIKI"        ,"34");		// 34：廃棄
+	define("DEN_KBN_HAIKI_TOKU"   ,"35");		// 35：廃棄特売
+// 伝票区分（本社発生）
+	define("DEN_KBN_URI_HONSHA"   ,"05");		// 05：売上
+	define("DEN_KBN_SIIRE_HONSHA" ,"25");		// 25：本社仕入
+	define("DEN_KBN_TESURYO"      ,"26");		// 26：本社手数料（仕入マイナス）
+	define("DEN_KBN_MAEBARAI_KINRI" ,"27");		// 27：前払金利（仕入マイナス）
+	define("DEN_KBN_NYUKIN"       ,"35");		// 35：入金
+	define("DEN_KBN_SIHARAI"      ,"45");		// 45：支払
+	define("DEN_KBN_GENRYO"       ,"85");		// 85：原料出庫（内部）
+	define("DEN_KBN_GENRYO_KARI"  ,"86");		// 86：原料仮出庫（内部仮伝）
+	define("DEN_KBN_BUI_SIWAKE"   ,"87");		// 87：部位別仕分（内部入荷扱い）
+// 締日種別
+	define("SIMEBI_SBT_JISSEKI"   ,"01");		// 01：売上・仕入等の実績
+	define("SIMEBI_SBT_BAIHEN"    ,"02");		// 02：店舗売変
+	define("SIMEBI_SBT_ZAIMU_TENPO" ,"03");		// 03：財務システム（店舗）
+	define("SIMEBI_SBT_HONSHA"    ,"11");		// 11：本社入力
+	define("SIMEBI_SBT_KAIKEI"    ,"12");		// 12：本社会計締
+	define("SIMEBI_SBT_ZAIMU_HONBU" ,"15");		// 15：財務システム（本部）
+	define("SIMEBI_SBT_SHUPPO"    ,"21");		// 21：本社出報
+	define("SIMEBI_SBT_PCZAIKO"   ,"51");		// 51：ＰＣ在庫
+// オンライン区分
+	define("ONLINE_KBN_OFF"       ,"0");
+	define("ONLINE_KBN_ON"        ,"1");
+// 売買区分
+	define("KAKE_KBN_KAI"         ,"1");
+	define("KAKE_KBN_URI"         ,"2");
+	define("KAKE_KBN_SC"          ,"3");		//生産者コーナー用
+	define("BAIBAI_KBN_SIIRE","S");
+	define("BAIBAI_KBN_URI","U");
+
+
+// 伝票種類
+	$UV["DEF_DEN_SHURUI"]		= "09";
+// 移動伝票種類
+	$UV["IDO_DEN_SHURUI"]		= $UV["DEF_DEN_SHURUI"];
+// 売上伝票種類
+	$UV["URI_DEN_SHURUI"]		= $UV["DEF_DEN_SHURUI"];
+// 伝票最大行数
+	$UV["MAX_DEN_ROWNUM"]		= 20;
+// 仕入一括入力２伝票行数
+	$UV["ROWNUM_SIIRE_IKKATU2"]	= 20; 
+// 伝票採番時のチェックディジット
+	$UV["DEN_CD_KBN"]			= "0";			// 0：なし 1：MOD11 2：MOD71
+// 数値計算関連
+	$UV["DEF_DEN_HASU_KBN"]		= "1";			// 原価端数区分：切捨て
+	$UV["DEF_BAIKA_HASU_KBN"]	= "2";			// 売価端数区分：四捨五入
+// ＴＣメリットフィー
+	//define("TC_MERIT_FEE"				,"0.02");
+// 税関連
+	define("TAX_KBN_SOTO"		, "1");			// 外税（税抜）
+	define("TAX_KBN_UCHI"		, "2");			// 内税（税込）
+	define("TAX_KBN_HIKAZEI"	, "3");			// 非課税
+	$UV["DEF_TAX_RATE"]			= "0.05";		// 消費税率
+	$UV["DEF_TAX_KBN"]			= "1";			// 税区分　　　：外税（税抜き）
+	$UV["DEF_TAX_HASU_KBN"]		= "1";			// 税端数区分　：四捨五入
+	define("TAX_KBN_PRIO_BUN"	, "BUN");			// 税区分優先順　：BUN ：商品分類で決定（取引先は見ない）
+	define("TAX_KBN_PRIO_TORI"	, "TORI");			// 税区分優先順　：TORI：取引先＞商品分類
+	$UV["TAX_KBN_PRIO"]			= TAX_KBN_PRIO_BUN;	// 税区分優先順
+
+	$UV["REDUCED_TAX_RATE_YN"]	= "Y";			// 軽減税率対応
+	define("TAX_RATE_SBT_STANDARD", "1");		// 標準税率
+	define("TAX_RATE_SBT_REDUCED",  "2");		// 軽減税率
+	$UV["REDUCED_TAX_RATE_SDT"] = "20191001";	// 軽減税率の適用開始日
+	$UV["REDUCED_ITEM_UPLOAD_YN"] = "N";		// 税率種別対応版の一括登録を許可する
+
+// 納品先区分
+	define("NHN_KBN_CHOKUSO"	, "0");		// 0:直送
+	define("NHN_KBN_TCCENTR"	, "1");		// 1:TC
+	define("NHN_KBN_PCCENTR"	, "2");		// 2:PC
+// 単位区分
+	define("UNIT_KBN_CASE"		, "A");
+	define("UNIT_KBN_BOWL"		, "B");
+	define("UNIT_KBN_BARA"		, "C");
+	define("UNIT_KBN_KIRO"		, "Q");
+	define("UNIT_KBN_GRAM"		, "R");
+// ユーザ単位区分
+	$UV["USER_UNIT_KBN_DEF"]	= "0";		// ユーザ単位区分省略値（ユーザ毎に異なる）
+// 管理種別（マスター項目）
+	define("KANRI_SBT_ADMI"		, "ADMI");
+	define("KANRI_SBT_USER"		, "USER");
+	define("KANRI_SBT_USUB"		, "USUB");
+// 伝票ＳＥＱ区分（1：作成順 2：分類順）
+	define("DEN_SEQ_KBN_DEF"	,"1");
+	define("DEN_SEQ_KBN_INPUT"	,"1");
+	define("DEN_SEQ_KBN_BUN"	,"2");
+	$UV["DEN_SEQ_KBN_ORDER"]	= DEN_SEQ_KBN_DEF;
+	$UV["DEN_SEQ_KBN_KENPIN"]	= DEN_SEQ_KBN_DEF;
+// 商品フォーマット
+	define("DEF_ITEM_FORMAT","A");
+// 掛現金区分
+	define("KAKE_KBN_KAKE"   ,"1");
+	define("KAKE_KBN_GENKIN" ,"0");
+// カレンダー作成日数
+	define( "TENPO_CAL_DAYS"	, 400 );		// 店舗カレンダー作成日数
+	define( "FRESH_CAL_DAYS"	, 200 );		// 生鮮カレンダー作成日数
+// 課金区分
+	define("KAKIN_KBN_KOURI" 	, "1");			// 小売課金
+	define("KAKIN_KBN_OROSI" 	, "2");			// 卸課金
+	define("KAKIN_KBN_NO"		, "9");			// 対象外
+// 棚卸データ区分（2013.06.29 追加）
+	define("TANA_DATA_KBN_KURI"		, "1");		// 繰越
+	define("TANA_DATA_KBN_CALC"		, "2");		// 計算
+	define("TANA_DATA_KBN_JITSU"	, "3");		// 実地棚卸
+// 棚卸関連
+	$UV["TANA_TAX_INPUT_KBN_GAMEN"]	= "N";		// 棚卸税入力区分(画面) N：税抜　1：税込
+	$UV["TANA_INPUT_PTN"]			= "B";		// 棚卸入力パターン A：ACMZ型　B：原価/売価型
+	$UV["TANA_SAME_KEY_ACT"]		= "B";		// 同KEYが存在した場合 A：加算　B：後優先
+	$UV["ZAIKO_SYUSEI_LIMIT_TIME"]	= "090000";		// hhmmss：リアル在庫修正の当日分反映対象の時間期限 (古い/下２つに置き換え)
+	$UV["ZAIKO_SYUSEI_LIMIT_TIME_SIIRE"]	= "090000";		// hhmmss：リアル在庫修正の当日分反映対象の時間期限 (仕入用)
+	$UV["ZAIKO_SYUSEI_LIMIT_TIME_URI"]	= "090000";		// hhmmss：リアル在庫修正の当日分反映対象の時間期限 (売上用)
+	$UV["ZAIKO_SYUSEI_JIKAN_URI"]	= "N";		//時間帯売上を反映するか（Y:する N:しない）
+
+	$UV["TANA_TSUKETATE_POSMASTER"]	= "N";		// 棚卸表の商品情報を"店舗商品棚卸用"（POSマスタ）から取得する。(Y or N)
+	$UV["TANA_TSUKETATE_TANABAN_NM"] = "ゴンドラNo";	// 棚卸表の棚番呼称
+	$UV["TANA_TSUKETATE_TENPO_NM_S"] = "N";		// 棚卸表の店舗名に「店舗略称」を表示する。
+	$UV["TANA_TSUKETATE_BUNRUI_PAGE"] = "N";	// 付立表で分類毎に改ページする。
+	$UV["TANA_TSUKETATE_BUNRUI"] = "N";			// 付立表の部門欄に分類を表示する。（"N" or "2" or "3")
+												// （N:表示しない、2:部門（中分類）を表示、3:クラス（小分類）を表示）
+	$UV["TANA_MASTER_YN"] = "Y";	// 店舗棚番（マスタ）を利用する。
+
+// 棚札関連
+	$UV["TANAFUDA_SAME_KEY_ACT"]		= "B";		// 同KEYが存在した場合 A：加算　B：後優先
+	$UV["TANAFUDA_DL_LAYOUT"]				= "H";		// 棚札ダウンロードレイアウト H：ひむかカラー用　A：標準
+	$UV["TANAFUDA_HIMUKA_NO"]				= "XX";		// ひむかカラー棚札レイアウトの番号
+
+	$UV["TANAFUDA_AUTO_MAKE"]				= "X";		// 棚札自動生成の設定  X：生成しない　N：新規のみ　C：変更のみ　NC：新規/変更両方
+	$UV["DEF_TANA_LABEL_TYPE"]		= "2";		// 棚札サイズの規定値
+
+//-----------------------------------------------------------
+// グルーピング
+//-----------------------------------------------------------
+// グループ種別
+	define("GRP_SBT_ITEM"		,"ITEM");
+	define("GRP_SBT_TORI"		,"TORI");
+	define("GRP_SBT_LT"			,"LT");
+	define("GRP_SBT_OYAKO"		,"OYAKO");
+	define("GRP_SBT_JISSEKI"	,"JISSEK");
+	define("GRP_SBT_FRESH"		,"FRESH");
+	define("GRP_SBT_POS"		,"POS");
+	define("GRP_SBT_SC"     ,"SC");			// 生産者コーナー店舗
+// グループコード
+	define("GRP_CD_ITEM_ZENTEN" ,"999");	// 商品管理：全店コード
+	define("GRP_CD_ITEM_NOTEN"  ,"888");	// 商品管理：店舗展開なし
+	define("GRP_CD_ITEM_DUMMY"  ,"XXX");	// 商品管理：特売企画のＰＯＳ/ＥＯＳグループに設定(項目として使用しなくなった)
+	define("GRP_CD_TORI_ZENTEN" ,"ALL");	// 物流管理：全店コード
+	define("GRP_CD_JISSEKI_ZENTEN" ,"URI-999");
+	define("GRP_CD_ITEM_SC_ALL"	,"SC_ALL");	// 商品管理：生産者コーナー店舗
+// 特売グループコード
+	define("GRP_CD_TOKU_OLD" ,"OLD");		// 旧スケジュールマスタ・移行データ
+//-----------------------------------------------------------
+// 便・納品先・取引先・店舗・得意先関連
+//-----------------------------------------------------------
+// 便ＮＯ
+	define("DEF_BIN_NO"					, "0");		// 便ＮＯ省略値・初期値
+	define("BIN_NUM_FRESH"				, "2");		// 生鮮便数
+	define("BIN_NO_START_VALUE"			, "0");		// 便ＮＯの開始値
+// 納品先区分
+	define("NOHIN_KBN_TENPO"			, "0");
+	define("NOHIN_KBN_TC"				, "1");
+	define("NOHIN_KBN_PC"				, "2");
+	define("NOHIN_KBN_NC"				, "3");
+	define("NOHIN_KBN_ICHIBA"			, "2");
+// 取引先種別
+	define("TORI_SBT_DEF"				, "01");
+	define("TORI_SBT_IPPAN"				, "01");
+	define("TORI_SBT_KEIZAIREN"			, "02");
+	define("TORI_SBT_ZENNO"				, "03");
+	define("TORI_SBT_KANREN"			, "04");
+	define("TORI_SBT_DRY_CENTER"		, "11");
+	define("TORI_SBT_FRESH_CENTER"		, "12");
+	define("TORI_SBT_FRESH_DEF"		, "21");
+	define("TORI_SBT_FRESH_ORDER"		, "21");	// 生鮮発注用
+	define("TORI_SBT_FRESH_NYUKA"		, "22");	// 生鮮入荷用
+	define("TORI_SBT_FRESH_SEISAN"		, "29");	// 生鮮精算用
+	define("TORI_SBT_SC"           ,"71");	// 出荷者	(生産者対応)
+	define("TORI_SBT_SHUKKASHA"    ,"71");	// 出荷者	(生産者対応)
+	define("TORI_SBT_BUMONTENSO"		, "90");
+	define("TORI_SBT_TENSO"				, "91");
+	define("TORI_SBT_GENKIN"			, "92");
+// 取引先/取引先コード+支払先コードにEDI取引先コードを使用しているか
+	$UV["USE_EDITORICD"]					= "N";			// (Y：ＥＤＩ取引先コード  N：自社取引先コード)
+// 取引先コード桁数
+	$UV["LEN_TORI_CD"]					= "6";			// 取引先コード桁数
+	$UV["LEN_TORI_CD_USE_YN"]		= "Y";			// Y:商品登録時に自動桁数調整を行う、N:行わない
+// 取引先コード
+	define("DEF_TORI_CD"				, "999999");	// 取引先コード省略値
+	define("DEF_EDI_TORI_CD"			, "99999901");	// ＥＤＩ取引先コード省略値
+// 特別な取引先コード
+	$UV["TORI_CD_DUMMY"]				= "999999";				// ダミー取引先コード
+	$UV["TORI_CD_TENPO_TENSO"]			= $UV["TORI_CD_DUMMY"];	// 店舗間転送
+	$UV["TORI_CD_BUMON_TENSO"]			= $UV["TORI_CD_DUMMY"];	// 部門間転送
+	$UV["TORI_CD_PC"]				= "999912";				// ＰＣ（加工センター）
+	$UV["TORI_CD_DC"]				= "999911";				// ＤＣ（在庫センター）
+	$UV["TORI_CD_ICHIBA"]				= "999911";				// 市場
+	$UV["TORI_CD_HONBU"]				= "999911";				// 本部扱い
+	//define("TORI_CD_AC"      ,"00000");		// AC扱い
+	//define("TORI_CD_PC"      ,"20391");		// ＰＣ
+	//define("TORI_CD_DC"      ,"20392");		// ＤＣ
+	//define("TORI_CD_KUMISEI" ,"24112");		// くみあい青果
+// 得意先コード桁数
+	$UV["DEF_TOKUI_CD"]					= "000000";		// 得意先コード省略値
+	$UV["LEN_TOKUI_CD"]					= "6";			// 得意先コード桁数
+// 店舗種別
+	define("TENPO_SBT_SM"				, "01");		// ＳＭ
+//	define("TENPO_SBT_IRYO"				, "21");
+//	define("TENPO_SBT_SHOSEKI"			, "31");
+// 出荷先種別
+	//define("SHUKKA_SBT_PC"     ,"00");
+	//define("SHUKKA_SBT_AC"     ,"01");
+	//define("SHUKKA_SBT_COOP"   ,"11");
+	define("SHUKKA_SBT_SONOTA" ,"99");
+// 得意先種別
+	//define("TOKUI_SBT_AC"          ,"51");
+//-----------------------------------------------------------
+// 部門・課・分類・科目関連
+//-----------------------------------------------------------
+// 課コード
+	//define("KA_CD_KYOKAN"    ,"120");	// 共管
+	//define("KA_CD_SHOHIN"    ,"720");	// 商品課
+	//define("KA_CD_DRY"       ,"731");	// 日用食品課
+	//define("KA_CD_FRESH"     ,"751");	// 生鮮日配課
+	//define("KA_CD_PC"        ,"755");	// ＰＣ
+	//define("KA_CD_DC"        ,"735");	// ＤＣ
+	//define("KA_CD_TC"        ,"735");	// ＴＣ
+	//define("KA_CD_CC"				,"758");	// 日配センター(Chilled Center)
+// 科目コード
+	//define("KAMOKU_CD_HONSHA_URIKAKE" ,"135");	// 本社売掛金
+	//define("KAMOKU_CD_KARIBARAI"      ,"175");	// 仮払金
+	//define("KAMOKU_CD_NAIBU_KESSAI"   ,"181");	// 内部決済
+	//define("KAMOKU_CD_KAIKAKE"        ,"310");	// 買掛金
+	//define("KAMOKU_CD_URI_GAIBU"      ,"500");	// 外部売上
+	//define("KAMOKU_CD_URI_NAIBU"      ,"501");	// 内部売上
+	//define("KAMOKU_CD_JIGYO_ZASSHU"   ,"510");	// 事業雑収入
+	//define("KAMOKU_CD_SIIRE_GAIBU"    ,"604");	// 外部仕入
+	//define("KAMOKU_CD_SIIRE_NAIBU"    ,"605");	// 内部仕入
+// 分類区分（名称は区分定義にも設定しているが・・・）
+	define("BUN_KBN_DAI"			, "1");
+	define("BUN_KBN_CHU"			, "2");
+	define("BUN_KBN_ARARI"		, "2");
+	define("BUN_KBN_SHO"			, "3");
+	define("BUN_KBN_SAI"			, "4");
+	$UV["BUN_KBN_GROUP"]			= BUN_KBN_DAI;		// グループ相当の分類区分
+	$UV["BUN_KBN_BUMON"]			= BUN_KBN_CHU;		// 部門相当の分類区分
+	$UV["BUN_KBN_DEN"]				= BUN_KBN_CHU;		// 伝票分類区分
+	$UV["BUN_KBN_EOB"]				= BUN_KBN_DAI;		// EOB選択分類区分
+	$UV["BUN_KBN_DEPT"]				= BUN_KBN_DAI;		// デプト相当の分類区分
+	$UV["BUN_KBN_LINE"]				= BUN_KBN_CHU;		// ライン相当の分類区分
+	$UV["BUN_KBN_CLASS"]			= BUN_KBN_SHO;		// クラス相当の分類区分
+	$UV["BUN_KBN_ITEM"]				= BUN_KBN_SHO;		// 商品分類区分
+	$UV["BUN_KBN_NM_DAI"]			= "グループ";		// 大分類
+	$UV["BUN_KBN_NM_CHU"]			= "部門";			// 中分類
+	$UV["BUN_KBN_NM_SHO"]			= "クラス";			// 小分類
+	$UV["BUN_KBN_NM_DEN"]			= BUN_KBN_NM_CHU;	// 伝票分類
+	$UV["BUN_KBN_NM_ITEM"]			= BUN_KBN_NM_SHO;	// 商品分類
+	$UV["BUN_KBN_NM_BUMON"]			= BUN_KBN_NM_CHU;	// 商品分類
+	$UV["BUN_KBN_ITEM_YN"]			= "Y";		// 店舗商品/分類コードに分類区分が混在してない（Y）している（N）
+// カラム名
+	$UV["GROUP_CD_COLUMN_NM"]		= "大分類コード";	// グループコード相当の列名
+	$UV["BUMON_CD_COLUMN_NM"]		= "中分類コード";	// 部門コード相当の列名
+	$UV["CLASS_CD_COLUMN_NM"]		= "分類コード";		// クラスコード相当の列名
+	$UV["SAKE_CD_COLUMN_NM"]		= "小分類コード";	// 酒類コード相当の列名
+// 売上入力
+	$UV["BUN_KBN_URI_REG"]			= BUN_KBN_SHO;		// 売上入力の分類区分
+	$UV["BUN_KBN_URI_REG_KYAKU"]	= BUN_KBN_CHU;		// 客数のみ入力する分類区分（入力不要の場合は""）
+// 売上実績
+	$UV["URI_JOGAI_CHU_BUN_CD"]		= "XX";				// 売上として除外するための中分類コード
+// 酒分類
+	$UV["BUN_KBN_SHURUI"]			= BUN_KBN_SHO;		// 酒類分類区分（分類とは別に酒類マスタで管理する場合は「N」）
+	$UV["SAKE_BUMON_CD"]			= "XXXX";			// 酒類で使用する伝票分類コード
+	$UV["SAKE_JOGAI_DAI_BUN_CD"]	= "9";				// 酒類として除外するための酒類大分類コード
+	//define("SAKE_ARARI_CD"			,"1005");
+// 費用部門コード
+	$UV["HIYO_BUMON_CD"]			= "XXXX";			// 費用に使用する伝票分類コード
+	$UV["HIYO_BUMON_NM"]			= "経費";			// 費用に使用する伝票分類名
+	$UV["HIYO_KAMOKU_YN"]			= "N";				// 費用仕入時に勘定科目を必須としない
+	$UV["HIYO_BUMON_AUTO_YN"]		= "Y";				// 費用仕入時に費用部門コードを自動入力する
+// 桁数
+	$UV["LEN_BUN_DEN"]				= "2";				// 伝票分類コード
+	$UV["LEN_BUN_CLASS"]			= "4";				// クラスコード
+	$UV["LEN_BUN_SAI"]				= "6";				// 細分類コード
+// 分類区分使用制御
+	$UV["BUN_KBN_SAI_YN"]			= "N";				// 細分類コードの使用
+//-----------------------------------------------------------
+// 期間初期値
+//-----------------------------------------------------------
+	define("KIKAN_DEN_INPUT"      ,"100");	// 伝票入力可能期間
+	$UV["KIKAN_DEN_INPUT_URI"]    = "100";	// 売上伝票入力可能期間
+	$UV["KIKAN_DEN_INPUT_FUTURE"] = "60";	// 伝票入力可能期間(未来)
+	define("KIKAN_DEN_INPUT_SHUPPO","300");	// 伝票入力可能期間(出報)
+	define("KIKAN_DEN_NO_CHECK"       ,"7");	// 伝票重複チェック期間
+	define("KIKAN_DEN_NO_CHECK_NYUKA" ,"30");	// 伝票重複チェック期間(入荷)
+	define("KIKAN_DEN_NO_CHECK_SHUKKA","30");	// 伝票重複チェック期間(出荷)
+	define("KIKAN_JUCHU_PRINT"    ,"10");	// 受注集計表表示期間
+	define("KIKAN_KOTAI_ID"       ,"100");	// 個体識別番号の有効期間(入荷日-出荷日)
+	define("KIKAN_POS_KIKAKU_HOJI","365");	// ＰＯＳ上での企画保持期間(終了日)
+	define("DEF_KIKAN_DEN_DISP"   ,"60");	// 伝票表示期間初期
+	define("DEF_KIKAN_KEIEI_DISP" ,"120");	// 経営管理期間初期
+	$UV["KIKAN_NONACT_TEKIYODT"]				= "90";		// ノンアクト対象の使用開始日
+	$UV["KIKAN_NONACT_NOHINDT"]				= "540";	// ノンアクト対象の最終納品日
+	$UV["KIKAN_NONACT_URIDT"]				= "540";	// ノンアクト対象の最終売上日
+//-----------------------------------------------------------
+// アップロード関連
+//-----------------------------------------------------------
+// 行判定値
+	define("LINE_NORMAL"    ,"NORMAL");
+	define("LINE_SKIP"      ,"SKIP");
+	define("LINE_ERROR"     ,"ERROR");
+	define("LINE_WARNING"   ,"WARNING");
+// アップロードファイル種別
+	define("FILE_SBT_ITEM"  ,"ITEM");
+	define("FILE_SBT_ORDER" ,"ORDER");
+	define("FILE_SBT_TANA"  ,"TANA");
+	define("FILE_SBT_SHUPPO","SHUPPO");
+	define("FILE_SBT_CATEGORY","CATEGORY");
+// 商品登録時
+	define("CHECK_UKBN_STRICT" ,"Y");		// 登録区分を厳しくチェック（本番ではY）
+//-----------------------------------------------------------
+// 排他制御関連
+//-----------------------------------------------------------
+// 処理対象
+	define("LOCK_ITEM"        ,"ITEM");
+	define("LOCK_TANA"        ,"TANA");
+	define("LOCK_ORDER"       ,"ORDER");
+	define("LOCK_TABLET_ORDER"       ,"TABLET_ORDER");
+	define("LOCK_SIIRE"       ,"SIIRE");
+	define("LOCK_URI"         ,"URI");
+	define("LOCK_EOS_KAKUTEI" ,"EOS_KAKUTEI");
+	define("LOCK_TENPO_INPUT" ,"TENPO_INPUT");
+	define("LOCK_SHUKKA"      ,"SHUKKA");
+	define("LOCK_SIHARAI"     ,"SIHARAI");
+	define("LOCK_ZAIKO"       ,"ZAIKO");	// 2011.02.17 本社在庫入力用 (added by inok)
+	define("LOCK_ZAIMU"       ,"ZAIMU");	// 2011.03.28 本社財務入力用 (added by inok)
+	define("LOCK_KAIKAKE"         ,"KAIKAKE");			// 2011.06.24 本社支払締処理用 (added by matsud)
+	define("LOCK_KAIKAKE_GETSUJI" ,"KAIKAKE_GETSUJI");	// 2011.06.24 本社買掛月次締用 (added by matsud)
+	define("LOCK_JISSEKI"			,"JISSEKI");				// 精算ファイル取込・日計集計
+//	define("LOCK_SHUPPO"      ,"SHUPPO");
+//	define("LOCK_KEIEI_KANRI" ,"KEIEI_KANRI");
+//	define("LOCK_KEIEI_GETSUJI"   ,"KEIEI_GETSUJI");
+//	define("LOCK_JUCHU"       ,"JUCHU");	// 2010.12.13 本社受注入力用 (added by inok)
+//	define("LOCK_NYUKA"       ,"NYUKA");	// 2010.12.13 本社入荷入力用 (added by inok)
+//	define("LOCK_GENRYO"      ,"GENRYO");	// 2010.12.13 本社出荷入力用 (added by inok)
+	define("LOCK_URIKAKE"         ,"URIKAKE");			// 2011.06.24 本社請求締処理用 (added by matsud)
+//	define("LOCK_URIKAKE_GETSUJI" ,"URIKAKE_GETSUJI");	// 2011.06.24 本社売掛月次締用 (added by matsud)
+//	define("LOCK_KAKOU"				,"KAKOU");					// 加工指示・加工実績
+//-----------------------------------------------------------
+// 端末識別・採番関連
+//-----------------------------------------------------------
+// 本部発注からアルフデータ作成時の連番管理単位
+	define("HONBU_HHT_NO"           ,"999");
+	define("HONBU_HHT_SAIBAN_UNIT"  ,"HHT999");
+// 伝票採番単位
+	define("DEN_NO_SAIBAN_UNIT"     ,"DEN");
+// 店舗伝票
+	define("ORDER_SAIBAN_UNIT"				,"ORDER");				// 発注伝票
+	//define("DEN_NO_SAIBAN_KENPIN"   ,"KENPIN");				// 検品伝票
+	define("TENPO_KENPIN_SAIBAN_UNIT"   ,"KENPIN");			// 検品伝票
+	define("TENPO_SIIRE_SAIBAN_UNIT","TENPO_SIIRE");		// 仕入伝票
+	define("TENPO_URI_SAIBAN_UNIT"      ,"TENPO_URI");		// 売上伝票
+	define("HHT_URI_SAIBAN_UNIT"      ,"HHT_URI");		// 売上伝票(HHT)
+// 本社
+	define("HONSHA_SIIRE_SAIBAN_UNIT"       ,"HONSHA_SIIRE");		// 仕入伝票(入荷データ)
+	define("HONSHA_SIIRE_BATCH_SAIBAN_UNIT" ,"HONSHA_SIIRE_BATCH");	// 仕入伝票(入荷データバッチ)
+	define("HONSHA_TESURYO_SAIBAN_UNIT"     ,"HONSHA_TESURYO");		// 仕入伝票(手数料)
+	define("HONSHA_URI_SAIBAN_UNIT"         ,"HONSHA_URI");			// 売上伝票(出荷データ)
+	define("HONSHA_URI_BATCH_SAIBAN_UNIT"   ,"HONSHA_URI_BATCH");	// 仕入伝票(出荷データバッチ)
+	define("HONSHA_SHUPPO_SAIBAN_UNIT"      ,"HONSHA_SIIRE");		// 出報伝票(入荷データ)
+	define("HONSHA_ZAIKO_SAIBAN_UNIT"       ,"HONSHA_ZAIKO");		// 在庫関連(在庫修正/入出庫)
+	define("HONSHA_SIHARAI_SAIBAN_UNIT"     ,"HONSHA_SIHARAI");		// 支払伝票
+	define("HONSHA_NYUKIN_SAIBAN_UNIT"      ,"HONSHA_NYUKIN");		// 入金伝票
+	define("HONSHA_ZAIMU_SAIBAN_UNIT"       ,"HONSHA_ZAIMU");		// 財務伝票
+// 特売企画
+	define("TOKU_KIKAKU_GROUP_SAIBAN_UNIT"  ,"TOKU_KIKAKU_GROUP");	// 特売グループＮＯ
+	define("TOKU_KIKAKU_SAIBAN_UNIT"        ,"TOKU_KIKAKU");				// 特売企画ＮＯ
+	define("TOKU_KIKAKU_POS_SAIBAN_UNIT"    ,"TOKU_KIKAKU_POS");		// ＰＯＳ特売企画ＮＯ
+	define("TOKU_KIKAKU_CGC_SAIBAN_UNIT"    ,"TOKU_KIKAKU_CGC");		// ＣＧＣ特売企画ＮＯ
+// (採番)商品-商品管理
+	define("CATEGORY_SAIBAN_UNIT"    ,"CATEGORY");						// カテゴリー登録
+// 出荷者商品採番単位	(生産者対応)
+	define("SC_ITEM_SAIBAN_UNIT"		,"SC_ITEM");
+	define("SC_ITEM_EAN_SAIBAN_UNIT"	,"SC_ITEM_EAN");
+	define("SC_SHUKKASHA_SAIBAN_UNIT"	,"SC_SHUKKASHA");
+//-----------------------------------------------------------
+// 画面識別・入力経路
+//-----------------------------------------------------------
+	define("GAMEN_SBT_JUCHU_REG"            ,"J1");			//受注入力
+	define("GAMEN_SBT_JUCHU_SHUKKA"         ,"J2");			//受注入力
+	define("GAMEN_SBT_NYUKA_REG"            ,"N1");			//入荷登録
+	define("GAMEN_SBT_SHUKKA_REG"           ,"S1");			//出荷登録
+	define("GAMEN_SBT_SHUKKA_TANKA_REG"     ,"S3");			//出荷単価登録
+	define("GAMEN_SBT_SHUKKA_ITEM_REG"      ,"S2");			//出荷品名登録
+	define("GAMEN_SBT_SHUKKA_REG_SIIRE"     ,"S4");			//出荷登録(仕入振替)
+	define("GAMEN_SBT_SHUKKA_REG_SURYO"     ,"S5");			//出荷登録(数量振替)
+	define("GAMEN_SBT_SHUKKA_REG_GAKU"      ,"S6");			//出荷登録(金額振替)
+	define("GAMEN_SBT_KAKO_REG"             ,"K1");			//加工実績登録
+	define("GAMEN_SBT_GENRYO_REG"           ,"G1");			//原料持出
+	define("GAMEN_SBT_ZAIKO_REG"            ,"Z1");			//在庫登録
+	define("GAMEN_SBT_BUI_SIWAKE"           ,"B1");			//部位別仕分
+	define("GAMEN_SBT_SHUPPO_REG"           ,"P1");			//出報登録
+	define("GAMEN_SBT_SHUPPO_UPLOAD"        ,"P2");			//出報データ
+	define("GAMEN_SBT_FRESH_ORDER_SIMPLE"   ,"F1");			//生鮮発注店舗追加型
+	define("GAMEN_SBT_FRESH_ORDER_DAYLY"    ,"F2");			//生鮮発注店舗単日型
+	define("GAMEN_SBT_FRESH_ORDER_WEEKLY"   ,"F3");			//生鮮発注店舗週間型
+	define("GAMEN_SBT_FRESH_ORDER_MULTI"    ,"F4");			//生鮮発注店舗展開型
+//-----------------------------------------------------------
+// 画面種別(P_VSBT)
+//-----------------------------------------------------------
+// 画面種別(商品管理POS連携用) 2012.02.01 追加
+	define("VSBT_POS_Y"                     ,"POS_Y");		// POS連携
+	define("VSBT_POS_N"                     ,"POS_N");		// POS非連携
+	define("VSBT_EOS_Y"                     ,"EOS_Y");		// EOSのみ
+// 画面種別(仕入管理)
+	define("SIIRE_GAMEN_SBT_IKKATU"         ,"00");			// 仕入一括
+	define("SIIRE_GAMEN_SBT_MEISAI"         ,"01");			// 仕入返品明細
+	define("SIIRE_GAMEN_SBT_BUMON"          ,"03");			// 部門仕入返品
+	define("SIIRE_GAMEN_SBT_EOS"            ,"10");			// EOS確定
+	define("SIIRE_GAMEN_SBT_IDO"            ,"60");			// 移動入力
+	define("SIIRE_GAMEN_SBT_BAIHEN"         ,"70");			// 売変入力
+	define("SIIRE_GAMEN_SBT_NEBIKI"         ,"90");			// 仕入値引
+//-----------------------------------------------------------
+// 画面入力バッチＮＯ
+//-----------------------------------------------------------
+// 入力バッチＮＯクリアタイミング 2013.04.20 追加
+	define("INPUT_BATCH_NO_UP_MENU"			, "MENU");		// メニューでクリアして更新
+	define("INPUT_BATCH_NO_UP_INPUT"		, "INPUT");		// 任意の値を入力して更新
+	$UV["INPUT_BATCH_NO_UP"]				= INPUT_BATCH_NO_UP_MENU;
+//-----------------------------------------------------------
+// 画面制御関連
+//-----------------------------------------------------------
+// CSSクラス
+	define("ERRCELL","ERRCELL");
+// ダイアログパラメータ(フルダイアログ)
+	//define("DIALOG_FULL_PARAM","dialogWidth:1024px;dialogHeight:900px;center:yes");
+	//define("DIALOG_FULL_PARAM","dialogWidth:1130px;dialogHeight:900px;center:yes");
+	define("DIALOG_FULL_PARAM","dialogWidth:1130px;dialogHeight:900px;center:yes");
+	define("DIALOG_FULL_PARAM2","width=1130px,height=900px,scrollbars=1");
+// ダイアログパラメータ(左ダイアログ)
+	define("DIALOG_LEFT_PARAM","dialogWidth:300px;dialogHeight:900px;dialogTop:0px; dialogLeft:0px");
+// 別ウィンドウ名(PDF用)
+	define("TARGET_PDF"       ,"_pdf");
+// 伝票分類枝番の表示可否
+	$UV["DEN_BUN_EDA_USE"]    = "N";
+// 棚札印刷関連の項目表示可否
+	$UV["TANA_OUT_USE"]       = "Y";
+//-----------------------------------------------------------
+// 業務毎設定【本部発注】
+//-----------------------------------------------------------
+	define("HONBU_ORDER_INPUT_SDT","HEADER");	// 入力画面の開始日(HEADER：ヘッダー初日/LT：リードタイム計算）
+	define("HONBU_ORDER_WIDTH"    ,"2");
+	define("HONBU_ORDER_LT"       ,"7");
+	//define("HONBU_ORDER_LT_LIMIT" ,"2");
+	//define("HONBU_ORDER_LT_LIMIT" ,"7");		// 2010.12.07 暫定制限
+	$UV["HONBU_ORDER_LT_TENPO"]		= 10;
+	$UV["HONBU_ORDER_LT_HONBU"]		= 7;
+	define("HONBU_ORDER_LT_YOUHI" ,false);
+	define("HONBU_ORDER_SIME_TIME","1900");
+	// 本部発注を特売扱いに（2010.10.29）
+	define("HONBU_ORDER_TOKU_KBN" ,"1");
+	define("HONBU_ORDER_TOKU_SBT" ,"1");
+	define("HONBU_ORDER_KIKAKU_CD" ,"0000");
+	$UV["HONBU_ORDER_DECIMAL_INPUT_YN"]		= "N";	// 発注数の小数入力を許可
+//-----------------------------------------------------------
+// 業務毎設定【商品管理】
+//-----------------------------------------------------------
+// 商品管理関連
+	$UV["ITEM_MENT_CGC_GENKA_YN"]			= "Y";	// CGC原価の修正を許可
+	$UV["ITEM_MENT_JISYACD_YN"]				= "N";	// 自社商品コード項目の編集を許可
+	$UV["ITEM_MENT_ITFCD_YN"]					= "N";	// ITFコード項目の編集を許可
+	$UV["ITEM_MENT_POSNM_YN"]					= "N";	// ＰＯＳ品名項目の編集を許可
+	$UV["ITEM_MENT_POSNM_LEN"]				= 20;	// ＰＯＳ品名項目の文字数
+	$UV["ITEM_MENT_EOS_YN"]						= "N";	// EOS対象項目の編集を許可
+	$UV["ITEM_MENT_NOUHINSAKI_YN"]		= "N";	// 納品先区分項目の編集を許可
+	$UV["ITEM_MENT_BIN_YN"]						= "N";	// 便区分項目の編集を許可
+	$UV["ITEM_MENT_NEIRE_YN"]					= "N";	// 値入率項目の編集を許可
+	$UV["ITEM_MENT_ZEI_ID_YN"]			= "N";	// 税率ID項目の編集を許可
+	$UV["ITEM_MENT_ZEI_YN"]						= "N";	// 税区分項目の編集を許可
+	$UV["ITEM_MENT_STANDARD_BAIKA_YN"]= "N";	// 標準売価項目の編集を許可
+	$UV["ITEM_MENT_SAKE_YN"]					= "N";	// 酒類情報項目の編集を許可
+	$UV["ITEM_MENT_UNIT_YN"]					= "N";	// ユニットプライス項目の編集を許可
+	$UV["ITEM_MENT_LABEL_OUTPUT_YN"]	= "N";	// 棚札項目の編集を許可
+	$UV["ITEM_MENT_LABEL_SIZE_YN"]		= "N";	// 棚札サイズ項目の編集を許可
+	$UV["ITEM_MENT_WARIBIKI_YN"]			= "N";	// POS割引除外項目の編集を許可
+	$UV["ITEM_MENT_POS_SEND_YN"]			= "N";	// POS送信項目の編集を許可
+	$UV["ITEM_MENT_OB_OUTPUT_YN"]			= "N";	// 発注書出力区分項目の編集を許可
+	$UV["ITEM_MENT_COMMENT_YN"]				= "N";	// コメント項目の編集を許可
+	$UV["ITEM_MENT_COMMENT_LEN"]			= 20;		// コメント項目の文字数
+	$UV["ITEM_MENT_HANKAKU_ALLOW"]			= "N";	// 名称項目でも半角混在を許可
+	$UV["ITEM_MENT_SEISEI_MAKER"]			= "N";	// 品名生成にて「メーカー名＋商品呼称」をセット
+	//
+	$UV["ITEM_MENT_HINKN_DISP_YN"]			= "Y";	// 品名カナの画面表示を許可          (N：EOS区分がON＝通常、EOS区分がOFF=入力不可)
+	$UV["ITEM_MENT_POSKN_DISP_YN"]			= "Y";	// POS品名カナの画面表示を許可       (N：画面表示しない)
+	$UV["ITEM_MENT_UNIT_DISP_YN"]			= "Y";	// ユニットプライスの画面表示を許可  (N：画面表示しない)
+	$UV["ITEM_MENT_LABEL_DISP_YN"]			= "Y";	// 棚札の画面表示を許可              (N：画面表示しない)
+	$UV["ITEM_MENT_COMMENT_DISP_YN"]		= "Y";	// コメントの画面表示を許可          (N：画面表示しない)
+
+// 商品サマリ関連
+	$UV["ITEM_SUM_REGEXCEL_BTN_YN"]		= "N";	// 商品サマリに登録票ボタン表示
+	$UV["ITEM_SUM_TENPODATA_BTN_YN"]	= "N";	// 商品サマリに店別データボタン表示
+//特売商品管理
+	$UV["TOKU_KAIIN_BAIKA_USE_YN"]		= "N";	// 特売会員売価項目の編集を許可
+
+//-----------------------------------------------------------
+// 業務毎設定【生鮮基本】
+//-----------------------------------------------------------
+	$UV["CENTER_ITEM_BUN_YN"]			= "N";		// センター商品分類コードの使用有無
+	$UV["KOTAI_YN"]						= "N";		// 個体識別番号の使用有無
+	$UV["ZAIKO_YN"]						= "N";		// 在庫商品管理の有無
+	define("FRESH_ORDER_INPUT_SBT_A"	, "A");		// 生鮮発注入力種別（A品のみ）
+	define("FRESH_ORDER_INPUT_SBT_AB"	, "AB");	// 生鮮発注入力種別（A品/B品）
+	define("FRESH_ORDER_ITEM_EDABAN_A"	, "0");		// 生鮮発注（A品時の商品枝番）
+	define("FRESH_ORDER_ITEM_EDABAN_B"	, "1");		// 生鮮発注（B品時の商品枝番）
+//-----------------------------------------------------------
+// 業務毎設定【生鮮帳票】
+//-----------------------------------------------------------
+	// 生鮮関連帳票ＩＤ（2013.12.29 追加）
+	$UV["FRESH_FORMID_OBOOK_AB"]		= "HWFROB10";	// 生鮮発注台帳(AB型)
+	$UV["FRESH_FORMID_OBOOK_A"]			= "HWFROB11";	// 生鮮発注台帳(A型)
+	$UV["FRESH_FORMID_OBOOK_AB_BAR"]	= "HWFROB12";	// 生鮮発注台帳(AB型バーコード付き)
+	$UV["FRESH_FORMID_JUCHU_LIST"]		= "HWFRL010";	// 生鮮受注一覧
+	$UV["FRESH_FORMID_OKURIJO"]			= "HWFRL020";	// 生鮮店舗送状
+	$UV["FRESH_FORMID_SIIRE_LIST"]		= "HWFRL030";	// 生鮮仕入一覧
+	$UV["FRESH_FORMID_JUCHU_ITEM"]		= "HWFRL040";	// 生鮮受注商品
+	$UV["FRESH_FORMID_FURIKAE_LIST"]	= "HWFRL050";	// 生鮮振替一覧
+//-----------------------------------------------------------
+// 業務毎設定【生鮮受注】
+//-----------------------------------------------------------
+	$UV["FRESH_JUCHU_TENPO_WIDTH"]		= "17";			// 店舗横展開数
+	//define("JUCHU_KAKO_BAIKA_YN"  ,"Y");	// 加工品受注時の売価入力必須
+	//define("JUCHU_KAKO_GENKA_YN"  ,"Y");	// 加工品受注時の供給単価入力必須
+//-----------------------------------------------------------
+// 業務毎設定【生鮮入出荷】
+//-----------------------------------------------------------
+	// 加工指示ファイル名
+	$UV["FNAME_KAKO_SIJI"]				= "SEISIJ.txt";		// 加工指示ファイル
+	// 起票区分のグルーピングに使用（arrayMakerで使用）
+	//define("KIHYO_KBN_GRP_SHUKKA" ,"SHUKKA");	// 起票区分をグルーピング(SHUKKA：出荷関連）
+	//define("KIHYO_KBN_GRP_NYUKA"  ,"NYUKA");	// 起票区分をグルーピング(NYUKA ：入荷関連）
+	// 起票区分
+	//define("KIHYO_KBN_TANA"       ,"XX");		// 起票区分(XX ：棚卸修正）
+	// 加工：原料持出時の個体識別枝番数
+	//define("GENRYO_EDABAN_WIDTH"  ,"5");
+	// 加工：加工実績の個体識別数
+	//define("KAKO_KOTAI_NUM"       ,"10");
+	// 入出荷区分
+	//define("NYUSHUKKA_KBN_NYUKA"  ,"I");	// 入荷
+	//define("NYUSHUKKA_KBN_SIWAKE" ,"S");	// 部位別仕分
+	//define("NYUSHUKKA_KBN_KAKO"   ,"K");	// 加工
+	//define("NYUSHUKKA_KBN_SHUKKA" ,"O");	// 出荷・持出
+	// 部位別仕分区分
+	//define("BUISIWAKE_KBN_MOTO"   ,"1");	// 仕分元（入荷マイナス）
+	//define("BUISIWAKE_KBN_SAKI"   ,"2");	// 仕分先（入荷プラス）
+	// 個体識別枝番の呼称
+	//define("KOTAI_EDABAN_NM"      ,"在庫番号");	// 2011.04.26 在庫番号とする
+//-----------------------------------------------------------
+// 業務毎設定【生鮮確定】
+//-----------------------------------------------------------
+	// 確定猶予日数
+	$UV["FRESH_KAKUTEI_DELAY_DT"]	= "0";	// 確定までの猶予日数
+//-----------------------------------------------------------
+// 業務毎設定【生鮮在庫】
+//-----------------------------------------------------------
+	define("ZAIKO_KBN_NO"         ,"0");	// 在庫引当区分(0:非対象)
+	define("ZAIKO_KBN_SURYO"      ,"1");	// 在庫引当区分(1:数量)
+	define("ZAIKO_KBN_JURYO"      ,"2");	// 在庫引当区分(2:重量)
+	//define("ZAIKO_OIKOMI_YN"      ,"N");	// 在庫修正追込可否
+	//define("ZAIKO_NEWITEM_YN"     ,"N");	// 在庫修正による在庫商品生成可否
+	//define("ZAIKO_SUM_WIDTH"      ,"10");	// 在庫状況の表示日数
+//-----------------------------------------------------------
+// 業務毎設定【生鮮カレンダー】
+//-----------------------------------------------------------
+	$UV["FR_CAL_DEF_GRP"]			= "FR-ALL";		// 初期値：グループコード
+	$UV["FR_CAL_DEF_CENTER"]		= "999911";		// 初期値：センターコード
+	$UV["FR_CAL_DEF_SIIRE"]			= "ALL";		// 初期値：仕入先コード(ALL)
+//-----------------------------------------------------------
+// 業務毎設定【仕入管理】
+//-----------------------------------------------------------
+	$UV["SIIRE_KEIHI_KEIJO_KBN"]	= "1";		// 仕入実績管理における経費仕入取扱区分(1:経費仕入除く 2:経費仕入含む）
+	$UV["NEBIKI_DEN_KBN_YN"]		= "N";		// 値引伝票区分の細分化(Y:行う N:行わない）
+//-----------------------------------------------------------
+// 業務毎設定【ＰＯＳ連携】
+//-----------------------------------------------------------
+	//define("POS_SEND_KAKO_CD_K3"  ,"022");	// ＰＯＳ配信対象の加工品コード
+//-----------------------------------------------------------
+// 業務毎設定【損益管理】
+//-----------------------------------------------------------
+	$UV["SK_SHUKEI_PTN"]			= "";		// 損益管理月次集計のパターン(指定なし:標準 指定あり:ユーザー固有)
+	$UV["SK_URI_TENPO_INPUT_FLG"]	= "0";		// 売上実績の抽出条件(店舗入力フラグ)
+	$UV["SK_POS_NEBIKI_YN"]			= "N";		// POS値引等を売変扱いにするか
+	$UV["SK_RUI_GENKARITSU_KBN"]	= "1";		// 累積原価率の計算方法(1:累積在庫から 2:当月在庫から）
+//-----------------------------------------------------------
+// 業務毎設定【買掛売掛】
+//-----------------------------------------------------------
+	$UV["KK_KANRI_YN"]	= "N";						// 買掛管理を行うか
+	$UV["KK_TENPO_ZAN_KANRI_YN"]	= "N";		// 買掛管理で店舗別残高管理をするか
+	$UV["KK_TENPO_SUM_YN"]			= "N";		// 買掛管理で店舗毎に集計をするか
+	$UV["KK_SIIRESAKI_SUM_YN"]		= "N";		// 買掛管理で仕入先毎に集計をするか(※未対応）
+	$UV["KK_SAISIME_SABUN_YN"]		= "N";		// 支払再締時に差分のみ集計するか(※入力系は未対応？）
+	$UV["KK_TORI_ZEI_KBN_DEF"]		= "1";		// 取引先登録における税区分の初期値(1:外税 2:内税 3:非課税）
+	$UV["KK_TORI_ZEI_CALC_KBN_DEF"]	= "2";		// 取引先登録における税計算区分の初期値(2:伝票毎 3:締時）
+	$UV["KK_SIHARAI_SAKUSEI_DEF"]	= "0";		// 取引先登録における支払作成の初期値(0:作成しない 1:作成する）
+	$UV["KK_SIHARAI_INPUT_ROWNUM"]		= 50;	// 支払入力画面の入力可能行数
+
+	$UV["UK_TENPO_ZAN_KANRI_YN"]	= "N";		// 売掛管理で店舗別残高管理をしない
+//	$UV["UK_SAISIME_SABUN_YN"]		= "N";		// 請求再締時に差分のみの集計をしない
+//	$UV["UK_TOKUI_ZEI_KBN_DEF"]			= "1";		// 得意先登録における税区分の初期値(1:外税 2:内税 3:非課税）
+	$UV["UK_TOKUI_ZEI_CALC_KBN_DEF"]	= "2";		// 得意先登録における税計算区分の初期値(1:明細毎 2:伝票毎 3:締時）
+	$UV["UK_TOKUI_ZEI_HASU_DEF"]		= "1";		// 得意先登録における税端数の初期値(1:切捨 2:四捨五入 3:切上）
+	$UV["UK_SEIKYUSHO_MEISAI_OUTPUT_YN"]	= "Y";	// 請求書の伝票明細の出力チェックの有無(Y:オン)
+	$UV["UK_NYUKIN_INPUT_ROWNUM"]		= 50;					// 入金入力画面の入力可能行数
+
+	// 買掛関連帳票ＩＤ（2019.10.13 追加）
+	$UV["SIHARAI_REBATE_FORMID"]	= "PAYSUB201";	// 割戻一覧表
+	$UV["SIHARAI_EDI_FORMID"]		= "PAYSUB301";	// ＥＤＩ処理料一覧
+	$UV["SIHARAI_EDI_BILL_FORMID"]	= "PAYSUB401";	// ＥＤＩ請求書
+
+	// 支払予定表関連
+	$UV["PAYMENT_WEB_YN"]		= "N";				// 支払予定表の卸web公開有無
+	$UV["REBATE_YN"]			= "N";				// 割戻処理有無
+	$UV["SIHARAI_FORMID"]		= "PAY006T";		// 支払予定表
+	$UV["SIHARAI_LIST_FORMID"]	= "PAY006T";		// 支払一覧表
+	$UV["REBATE_CALC_PTN"]		= "A";				// リベート計算パターン（Ａ:仕入-返品-値引からリベートを計算する）
+	$UV["REBATE_TOKU_YN"]		= "Y";				// リベート計算に特売仕入を含むか？
+	$UV["REBATE_INTO_NEBIKI_YN"]= "N";				// リベートを値引伝票登録するか？
+	$UV["EDI_DENPYO_CALC_PTN"]	= "A";				// ＥＤＩ伝票カウント（Ａ:全て Ｂ:ＥＤＩのみ）
+	$UV["EDI_BILL_YN"]			= "N";				// ＥＤＩ請求書作成
+	$UV["SIHARAI_TESURYO_YN"]	= "N";				// 振込手数料管理(旧)
+	$UV["PAYMENT_TESURYO_YN"]	= "N";				// 振込手数料管理(新)
+	$UV["PAYMENT_TAX_ADJUST_YN"]= "N";				// 消費税調整
+
+	$UV["BMS_PAYMENT_CREATE_YN"]	= "N";			// BMS支払生成処理の対象としない
+
+//-----------------------------------------------------------
+// 業務毎設定【酒類管理】
+//-----------------------------------------------------------
+	// 酒類販売計上区分（2013.05.13 追加）
+	$UV["SAKE_URI_KEIJO_YN"]		= "Y";		// 単品売上から取得する（Y）しない（N）
+	// 酒税報告期首日（2013.05.13 追加）
+	$UV["SAKE_KISYU_MMDD"]			= "0401";	// 酒税報告期間の開始日
+	// 酒類実績区分（2013.06.29 追加）
+	define("SAKE_JISSEKI_KBN_SIIRE" , "01");	// 仕入
+	define("SAKE_JISSEKI_KBN_URI" 	, "11");	// 売上
+	define("SAKE_JISSEKI_KBN_TANA"	, "51");	// 棚卸
+	// 酒類棚卸有無判定件数（2013.06.29 追加）
+	$UV["SAKE_TANA_UMU_HANTEI_NUM"]	= 3;		// 棚卸の件数がこの件数未満の場合は棚卸とみなさない
+	// 酒税関連帳票ＩＤ（2013.07.14 追加）
+	$UV["SAKE_FORMID_UKEBARAI"]		= "HWSKL010";	// 酒類受払
+	$UV["SAKE_FORMID_HOUKOKU"]		= "HWSKL020";	// 酒税報告書
+	// パック・ギフト商品のバラ換算（2014.07.11 追加）
+	$UV["SAKE_BARA_CONV_KBN"]="0";					// （0:しない 1:パックのみ 2:ギフトのみ 3:両方）
+	//酒分類コードと対比する分類
+	$UV["SAKE_BUMON_CD_COLUMN"]					= ""; //酒分類コードとの比較対象分類を上書きする
+	$UV["SAKE_BUMON_CD_COLUMN_NM"]				= ""; //酒分類コードとの比較対象分類を上書きする
+//-----------------------------------------------------------
+// ＰＣ画面設定
+//-----------------------------------------------------------
+//	define("GAMEN_LIST_SCROLL_WIDTH"  ,"947");	// スクロールテーブルの標準幅
+	define("GAMEN_LIST_SCROLL_WIDTH"  ,"1068");	// スクロールテーブルの標準幅
+	define("GAMEN_LIST_SCROLL_YOHAKU" ,  "5");	// スクロールテーブルのセル余白
+	define("GAMEN_LIST_SCROLL_BAR"    , "22");	// スクロールテーブルのサイドバー	XP：17	Win7：20
+//-----------------------------------------------------------
+// 発注関連
+//-----------------------------------------------------------
+// ロット区分
+	$UV["LOT_KBN_DEF"]				= "2";				// 1：バラ 2：ロット
+// アルフ
+	// 特売区分の扱い（INVALID：無視 ERR：エラー扱い TOKU：特売処理 SPOT：スポット処理）
+	$UV["HANDY_TOKU_KBN_PTN"]		= "INVALID";		// 特売区分が設定された場合の処理
+	// 発注単位にまるめるか（0：まるめない 1：切捨 2：四捨五入 3：切上）
+	$UV["HANDY_LOT_PTN"]			= "2";				// 0：まるめない 1：切捨 2：四捨五入 3：切上
+// ＥＯＢ
+	$UV["TOKU_ORDER_LT"]			= "5";				// ハンディ納品日表示時の基準リードタイム
+// ホスト配信
+	$UV["USE_OROSICD2"]		= "取引先コード";	// ホストJCA配信時、卸取引先２にセットするコード
+// 発注明細画面 LT表示を制御
+	$UV["ORDER_DISP_LT_YN"]		= "N";				// Y：LT項目表示  N：LT項目非表示
+//-----------------------------------------------------------
+// ＰＣ画面項目値制御
+//-----------------------------------------------------------
+// 仕入売価項目値制御
+	$UV["SIIRE_BAIKA_NULL_ERROR_YN"] = "N";				// 空値はエラーとしない
+// 移動入力値入率の使用可否
+	$UV["IDO_NEIRE_YN"]              = "Y";				// 移動入力の値入を使用する
+// 仕入商品名入力可否
+	$UV["SIIRE_ITEM_NM_INPUT_YN"]    = "N";				// 仕入関連商品入力時の商品名の入力を不可にする
+// 返品理由コード
+	$UV["DEF_HENPIN_RIYU_CD"]        = "099";			// 標準値(無指定)
+	$UV["HENPIN_RIYU_CD_TEISEI"]     = "";				// 伝票の訂正(企業毎に定義)
+// 仕入伝票番号の入力必須の有無
+	$UV["SIIRE_DEN_NO_INPUT_YN"]     = "N";				// 仕入伝票番号の入力を必須としない
+// 仕入伝票登録後の計上日のクリア要否
+	$UV["SIIRE_KEIJODT_CLEAR_YN"]    = "N";				// 計上日のクリアをしない
+// 仕入伝票番号入力時の自動検索の有無
+	$UV["SIIRE_DEN_SEARCH_YN"]       = "N";				// 仕入伝票の自動検索をしない
+// 仕入伝票呼び出しボタンの表示有無
+	$UV["SIIRE_DEN_SEARCH_BTN_YN"]   = "Y";				// 呼び出しボタンの表示をする
+// 仕入伝票を検索するときに使用する条件項目
+	$UV["SIIRE_DEN_SEARCH_PTN"]      = "B";				// 検索パターンＢ(山スト版)とする
+// 仕入部門伝票登録の有無
+	$UV["SIIRE_BUMON_REG_YN"]        = "N";				// 仕入部門伝票を登録しない
+// 仕入値引金額の正負混在の可否
+	$UV["SIIRE_NEBIKI_SIGN_MIX_YN"]  = "N";				// 仕入値引の明細行の原価金額、売価金額の正負の混在を不可とする。
+// 仕入伝票の重複チェックの条件項目
+	$UV["SIIRE_DEN_DUPCHK_PTN"]      = "B";				// 重複パターンＢ(山スト版)とする
+// 移動一括の定番特売区分
+	$UV["IDO_IKKATSU_TOKU_KBN_DEF"] = TOKU_KBN_TEIBAN;	// 初期値を定番とする
+//-----------------------------------------------------------
+// 財務システム　定数
+//-----------------------------------------------------------
+// 消費税額の入力
+	$UV["ZM_INPUT_TAX"]              = "Y";
+// 全社部門コード
+	define("ZM_ZENSYA_CD"         ,"999");
+	define("ZM_ZENSYA_NM"         ,"全社");
+// 財務権限
+	define("ZM_KANRI_BUMON_Y"     ,"1");				// 管理
+	define("ZM_KANRI_BUMON_N"     ,"0");				// 管理以外
+// 予算指定
+	// 当初予算：0。変更予算：1。最終予算：2。と予算額・実算額に登録は可能。 
+	// しかし、ここで 0 を定義しているため、0 以外は登録しても予算一覧、予実対比には表示されない。
+	define("ZM_YOSAN_SITEI"       , 0);					// 予算
+	define("ZM_JISSAN_SITEI"      , 0);					// 実算
+// 科目区分　帳票ID
+	define("ZM_LIST_BS"           ,"BS");				// 貸借対照表
+	define("ZM_LIST_PL"           ,"PL");				// 損益計算書
+// 伝票区分
+	define("ZM_DENPYO_KBN"        ,"00");
+// 整理区分
+	define("ZM_SIWAKE_NITIJO"     ,"0");				// 日常仕訳
+	define("ZM_SIWAKE_SEIRI"      ,"1");				// 整理仕訳
+// 予算チェック
+	define("ZM_YOSAN_CHECK_Y"     ,"1");				// チェックする
+	define("ZM_YOSAN_CHECK_N"     ,"0");				// チェックしない
+// 予算管理
+	define("ZM_YOSAN_KANRI_Y"     ,"1");				// 管理する
+	define("ZM_YOSAN_KANRI_N"     ,"0");				// 管理しない
+// 店舗区分
+	define("ZM_TENPO_KBN_Y"       ,"1");				// 店舗
+	define("ZM_TENPO_KBN_N"       ,"0");				// 店舗以外
+// 検収区分
+	define("ZM_KENSYU_KBN_Y"      ,"1");				// 検収済
+	define("ZM_KENSYU_KBN_N"      ,"0");				// 未検収
+// 連動区分
+	define("ZM_RENDOU_KBN_Y"      ,"2");				// 連動済
+	define("ZM_RENDOU_KBN_N"      ,"0");				// 未連動
+// 基幹連携フラグ
+	define("ZM_RENKEI_KBN_Y"      ,"2");				// 連携済
+	define("ZM_RENKEI_KBN_N"      ,"0");				// 未連携
+	define("ZM_RENKEI_KBN_FUYO"   ,"9");				// 連携不要
+// 仕訳伝票登録区分
+	define("ZM_TOUROKU_KBN_INP"   ,"0");				// 仕訳入力
+	define("ZM_TOUROKU_KBN_CSV"   ,"1");				// ＣＳＶ入力
+	define("ZM_TOUROKU_KBN_AUTO"  ,"2");				// 自動登録
+// 試算表出力区分
+	define("ZM_PRINTOUT_Y"        ,"1");				// 出力する
+	define("ZM_NEWLINE_Y"         ,"1");				// 改行する
+// 貸借区分
+	define("ZM_TAISYAKU_KBN_KARI" ,"0");				// 借方
+	define("ZM_TAISYAKU_KBN_KASI" ,"1");				// 貸方
+// 摘要欄の長さ
+	define("ZM_TEKIYO_LENGTH"     ,40);
+// 摘要欄の取引先名の長さ
+	define("ZM_TEKIYO_TORINM_LEN" ,14);
+// 元帳諸口コード
+	define("ZM_SYOKUTI_CD"        ,"000");
+// 発生経路区分
+	define("ZM_KEIRO_KBN_ZAIMU"   ,"0");				// 財務
+	define("ZM_KEIRO_KBN_SIIRE"   ,"1");				// 仕入
+	define("ZM_KEIRO_KBN_SAIKEN"  ,"2");				// 債権
+	define("ZM_KEIRO_KBN_SAIMU"   ,"3");				// 債務
+	define("ZM_KEIRO_KBN_URIAGE"  ,"4");				// 売上
+// 印刷区分
+	define("ZM_PRINT_KBN_Y"       ,"1");				// 印刷済
+	define("ZM_PRINT_KBN_N"       ,"0");				// 未印刷
+// 消費税計算
+	//define("ZM_TAX_KEISAN_NONE"   ,"0");				// しない　
+	define("ZM_TAX_KEISAN_NUKI"   ,"1");				// 税抜金額からの計算
+	define("ZM_TAX_KEISAN_KOMI"   ,"2");				// 税込金額からの計算
+	define("ZM_TAX_KEISAN_NONE"   ,"3");				// しない　
+// 端数区分
+	define("ZM_HASU_KBN_ROUNDDOWN","1");				// 切捨
+	define("ZM_HASU_KBN_ROUND"    ,"2");				// 四捨五入
+	define("ZM_HASU_KBN_ROUNDUP"  ,"3");				// 切上
+// 課税対象区分
+	define("ZM_SUBJECT_TAX_NONE"   ,"1");				// 不課税　
+	define("ZM_SUBJECT_TAX_STD"    ,"2");				// 標準課税　
+	define("ZM_SUBJECT_TAX_EXEMPT" ,"3");				// 非課税　
+	define("ZM_SUBJECT_TAX_FREE"   ,"4");				// 免税　
+// 予算外区分
+	define("ZM_YOSANGAI_Y"        ,"1");				// 予算外
+	define("ZM_YOSANGAI_N"        ,"0");				// 予算内
+// 転送区分
+	define("ZM_TENSO_NONE"        ,"0");				// 未転送　
+	define("ZM_TENSO_COMPLETE"    ,"1");				// 転送完了
+	define("ZM_TENSO_INCOMPLETE"  ,"2");				// 転送不可
+// 画面区分
+	define("ZM_GAMEN_NORMAL"      ,"0");				// 通常行
+	define("ZM_GAMEN_LONG"        ,"1");				// 長行
+// 画面行数
+	define("ZM_GAMEN_ROWNUM_NOR"  , 10);				// 10行
+	define("ZM_GAMEN_ROWNUM_LNG"  ,100);				// 100行
+// 伝票上の最終確定日(株主総会開催月の翌月１日)
+	$UV["ZM_KAKUTEI_BI"]          = "0701";
+// 元帳
+	define("ZM_KANJO_MOTOCHO"     ,"0");				// 総勘定元帳
+	define("ZM_HOJO_MOTOCHO"      ,"1");				// 補助元帳
+// 元帳条件指定
+	define("ZM_MOTOCHO_JOKEN_Y"   ,"1");				// 指定する
+	define("ZM_MOTOCHO_JOKEN_N"   ,"0");				// 指定しない
+// 税処理
+	define("ZM_TAX_NUKI"          ,"0");				// 税抜
+	define("ZM_TAX_KOMI"          ,"1");				// 税込
+// 金額０円表示
+	define("ZM_HYOUJI_ZERO_Y"     ,"1");				// 表示する
+	define("ZM_HYOUJI_ZERO_N"     ,"0");				// 表示しない
+// 補助科目表示
+	define("ZM_HYOUJI_HOJO_Y"     ,"1");				// 表示する
+	define("ZM_HYOUJI_HOJO_N"     ,"0");				// 表示しない
+// 店舗個別表示
+	define("ZM_INDIVIDUAL_INDICATE_Y" ,"1");			// 表示する
+	define("ZM_INDIVIDUAL_INDICATE_N" ,"0");			// 表示しない
+// 部門明細表示
+	define("ZM_DETAILED_INDICATE_Y" ,"1");				// 表示する
+	define("ZM_DETAILED_INDICATE_N" ,"0");				// 表示しない
+// 予算集計方法
+	define("ZM_ADDUP_RUIKEI"      ,"1");				// 累計
+	define("ZM_ADDUP_HASSEI"      ,"0");				// 発生
+// 増減方法
+	define("ZM_ZOUGEN_PLUS"       ,"0");				// 加算
+	define("ZM_ZOUGEN_MINUS"      ,"1");				// 減算
+// 集計方法
+	define("ZM_SUBJECT_TENPO"     ,"0");				// 店舗コード
+	define("ZM_SUBJECT_GROUP"     ,"1");				// 集計グループ
+// 残高試算表符号反転
+	define("ZM_SISANHYO_FUGOHANTEN_Y" ,"1");			// 符号反転する
+	define("ZM_SISANHYO_FUGOHANTEN_N" ,"0");			// 符号反転しない
+// 損益計算書集計区分
+	define("ZM_PL_SYUKEI_KBN_Y"   ,"1");				// マイナス集計する
+	define("ZM_PL_SYUKEI_KBN_N"   ,"0");				// マイナス集計しない
+// アップロード先：USER_UPLOAD_DIRの直下
+	define("ZM_UPLOAD_SIWAKECSV"   ,"zaimu/siwakecsv");		// 仕訳伝票
+	define("ZM_UPLOAD_BUMON"       ,"zaimu/bumon");			// 部門
+	define("ZM_UPLOAD_KANJO"       ,"zaimu/kanjo");			// 勘定科目
+	define("ZM_UPLOAD_HOJO"        ,"zaimu/hojo");			// 補助科目
+	define("ZM_UPLOAD_SIWAKEMATCH" ,"zaimu/siwakematch");	// 仕訳伝票突合
+	define("ZM_UPLOAD_YOSAN"       ,"zaimu/yosan");			// 予算
+// ファイル出力先：暫定
+	define("ZM_SHARED_BASE"        ,BASH_BASE_DIR."data/zaimu");
+	define("ZM_YOSAN_PREFIX"       ,"YOSAN_DATA_");
+	define("ZM_SIWAKE_PREFIX"      ,"SIWAKE_");
+//-----------------------------------------------------------
+// 財務システム　勘定科目
+//-----------------------------------------------------------
+// 仕入管理
+	$UV["ZM_KANJO_CD_KARIBARAI"]                             = "175";	// 仮払金
+// 消費税
+	$UV["ZM_KANJO_CD_KARIBARAI_TAX"]                         = "176";	// 仮払消費税
+	$UV["ZM_KANJO_CD_KARIUKE_TAX"]                           = "336";	// 仮受消費税
+// 残高試算表
+//	$UV["ZM_KANJO_CD_KASIDAORE"]                             = "191";	// 貸倒引当金
+//	$UV["ZM_KANJO_CD_GENKASYOKYAKU"]                         = "230";	// 減価償却累計額
+	$UV["ZM_KANJO_CD_KURI_RIEKI_JOYOKIN"]                    = "430";	// 繰越利益剰余金
+//	$UV["ZM_KANJO_CD_TUMITATEKIN_TORIKUZUSI"]                = "940";	// 任意積立金取崩額
+// 損益計算書をマイナスする勘定科目
+//	$UV["ZM_KANJO_CD_URIAGE_NEBIKI_MODORIDAKA"]              = "540";	// 売上値引戻り高
+//	$UV["ZM_KANJO_CD_SIIRE_NEBIKI_MODOSIDAKA"]               = "612";	// 仕入値引戻し高
+//	$UV["ZM_KANJO_CD_KIMATU_SYOHIN_TANAOROSIDAKA"]           = "614";	// 期末商品棚卸高
+//	$UV["ZM_KANJO_CD_KIMATU_GENZAIRYO_TANAOROSIDAKA"]        = "615";	// 期末原材料棚卸高
+//	$UV["ZM_KANJO_CD_YAKUIN_TAININ_KYUYO_HIKIATEKIN_MODOSI"] = "723";	// 役員退任給与引当金戻
+//	$UV["ZM_KANJO_CD_TAISYOKU_KYUUYO_HIKIATEKIN_MODOSIIRE"]  = "725";	// 退職給与引当金戻入
+// 伝票突合で科目体系コード(奉行)→勘定科目に変換
+//	$UV["ZM_KANJO_CD_SIHONKIN"]                              = "400";	// 資本金
+//	$UV["ZM_KANJO_CD_JIKOKABUSIKI_SYOBUN_SAEKI"]             = "403";	// 自己株式処分差益
+//	$UV["ZM_KANJO_CD_BETTO_TUMITATEKIN"]                     = "420";	// 別途積立金
+//	$UV["ZM_KANJO_CD_YUKASYOKEN_HYOKA_SAGAKUKIN"]            = "440";	// 有価証券評価差額金
+// 予算チェック対象勘定科目
+//	$UV["ZM_KANJO_CD_YOSANCHK_ST"]	                         = "700";	// 開始勘定科目
+//	$UV["ZM_KANJO_CD_YOSANCHK_ED"]	                         = "799";	// 終了勘定科目
+//-----------------------------------------------------------
+// 財務システム　補助科目
+//-----------------------------------------------------------
+// その他(会社毎)
+	//$UV["ZM_HOJO_CD_SONOTA"]                                 = "000";
+	$UV["ZM_HOJO_CD_SONOTA"]                                 = "  0";	// ACMZ
+// 補助科目コードの形式(前ゼロ付き)
+	//$UV["ZM_HOJO_CD_FORMAT"]                                 = "03";
+	$UV["ZM_HOJO_CD_FORMAT"]                                 = "3";		// ACMZ
+//---------------------------------------------------------------
+// 財務システム　科目体系
+//---------------------------------------------------------------
+// 残高試算表
+	$UV["ZM_KAMOKU_CD_SISANGOKEI"]                           = "A1000";		// 資産合計科目コード
+	$UV["ZM_KAMOKU_CD_FUSAIGOKEI"]                           = "L1000";		// 負債合計科目コード
+	$UV["ZM_KAMOKU_CD_MISYOBUNRIEKI"]                        = "P6200";		// 当期未処分利益コード
+//	$UV["ZM_KAMOKU_CD_RIEKIJOYOKIN"]                         = "S1450";		// その他利益剰余金計コード
+	$UV["ZM_KAMOKU_CD_JOYOKINKEI"]                           = "S1400";		// 剰余金計コード
+	$UV["ZM_KAMOKU_NM_MISYOBUNRIEKI"]                        = "当期未処分利益";	// 当期未処分利益
+	$UV["ZM_KAMOKU_NM_TOUKIRIEKI"]                           = "(うち当期利益)";	// (うち当期利益)
+// 現預金内訳表
+	$UV["ZM_KAMOKU_CD_GENYOKIN"]                             = "A1200";		// 現預金科目コード
+// 伝票突合で科目体系コード(奉行)→勘定科目に変換
+//	$UV["ZM_KAMOKU_CD_SIHONKIN"]                             = "S1200";		// 資本金
+//	$UV["ZM_KAMOKU_CD_SONOTA_SIHONJYOYOKINKEI"]              = "S1350";		// その他資本剰余金計
+//	$UV["ZM_KAMOKU_CD_RIEKI_JUNBIKIN"]                       = "S1420";		// 利益準備金
+//	//$UV["ZM_KAMOKU_CD_MISYOBUNRIEKI"]                      = "P6200";		// * 定義済み
+//	$UV["ZM_KAMOKU_CD_SONOTA_SIHON"]                         = "S2100";		// その他資本
+// 損益計算書でマイナスする科目体系
+//	$UV["ZM_KAMOKU_CD_URIAGE_GENKA"]                         = "P1100";		// 売上原価
+//	$UV["ZM_KAMOKU_CD_HANBAIHI_IPPANKANRIHI"]                = "P3000";		// 販売費及び一般管理費
+//	$UV["ZM_KAMOKU_CD_EIGYOGAI_HIYO"]                        = "P4120";		// 営業外費用
+//	$UV["ZM_KAMOKU_CD_TOKUBETU_SONSITU"]                     = "P5120";		// 特別損失
+// 予算チェック対象科目区分コード
+	$UV["ZM_KAMOKU_CD_HANBAIHI_IPPANHI"]	                 = "P3000";		// 販売費及び一般管理費
+//---------------------------------------------------------------
+//  財務システム　取引先関連
+//---------------------------------------------------------------
+// 取引先の種別
+	define("ZM_TORISBT_KAIKAKE",        "0");			// 買掛金
+	define("ZM_TORISBT_MIHARAIKEIHI",   "1");			// 未払金経費
+	define("ZM_TORISBT_MIHARAI",        "2");			// 未払金
+	define("ZM_TORISBT_SEIKYUSAKI",     "3");			// 請求先
+// 取引先の要否判定
+	$UV["ZM_BUMON_CD_TORIHIKI"]                              = "120";		// 対象の部門コード
+	$UV["ZM_KANJO_CD_HONSYA_URIKAKEKIN"]                     = "135";		// 本社売掛金
+	$UV["ZM_KANJO_CD_KAIKAKEKIN"]                            = "310";		// 買掛金
+	$UV["ZM_HOJO_CD_MIHARAIKIN"]                             = "325  0";	// 未払金その他
+	$UV["ZM_HOJO_CD_MAEBARAIKIN_RISOKU"]                     = "800  2";	// 前払金利息
+//-----------------------------------------------------------
+// ＣＧＣマスタ取込
+//-----------------------------------------------------------
+	$UV["CGC_MASTER_POS_SEND"]         = "9";			// 0：POS送信、9：POS不要
+
+//-----------------------------------------------------------
+// ＣＧＣ出荷取込
+//-----------------------------------------------------------
+	$UV["CGC_SHUKKA_BAIKA_HOSEI_KBN"]   = "0";			// 売価の自動補正区分(0:補正しない 1:売価ゼロのみ補正 2:すべて補正 3:一部分類はすべて、他は売価ゼロのみ)
+
+//-----------------------------------------------------------
+// 卸Web出荷取込
+//-----------------------------------------------------------
+	$UV["HIORO_SHUKKA_ERR_SHORI_PTN"]	= "A";			// 出荷取込エラー時の対応パターン（A：基本マスタ系は保留し以外は完了とする）
+
+//-----------------------------------------------------------
+// ハンディ 表示関連
+//-----------------------------------------------------------
+	$UV["EOB_DISP_ORDER_GAKU"]		= "Y";					// [EOB]商品スキャンBOX下に発注状況（金額）を表示するか
+	$UV["EOB_INGENKA_YN"]			= "Y";					// [EOB]カレンダー画面で原価入力を可にするか
+	$UV["EOB_INBAIKA_YN"]			= "Y";					// [EOB]カレンダー画面で売価入力を可にするか
+	$UV["EOB_SPOT_YN"]				= "Y";					// [EOB]カレンダー画面でSPOTを選択できるかか
+	$UV["EOB_SEL_NOUHINBI_YN"]		= "Y";					// [EOB]納品日選択を利用できるか
+	$UV["SELTORI_YN"]				= "Y";					// [検品]トップ画面で取引先の選択を行うか
+	$UV["ALF_RETURN_ERR"]			= "N";					// [ALF]発注エラーを返すか設定
+	$UV["EOB_HYOKI_TEI"]			= "定番発注";			// [EOB]発注種別11の表記文字定義
+	$UV["EOB_HYOKI_TOKU"]			= "特売発注";			// [EOB]発注種別12の表記文字定義
+	$UV["EOB_TOKU_TEIERR"]			= "N";					// [EOB]発注種別12の発注で定番はエラーとする
+	$UV["DATE_MIN"]					= "-30";				// 日付は過去 -30 日まで指定可能
+	$UV["DATE_MAX"]					= "90";					// 日付は未来  90 日まで指定可能
+	$UV["WAR_SURYO"]				= "N";					// [EOB]数量警告を定義（N：数量警告無し/数値:警告数量（以上）
+	$UV["LOT_CHANGE_YN"]			= "N";					// [EOB][補充]ロット区分の変更を可にするか
+	$UV["WAR_BUMON"]				= "Y";					// [EOB]部門違いの警告をするか
+	$UV["DISP_BALLIRISU_YN"]		= "Y";					// [EOB][補充]ボール入数を表示するか
+	$UV["EOB_MIRAI_ITEM_YN"]		= "N";					// [EOB]未来使用開始日の発注を可能にするか
+	$UV["EOB_TOKU_URI_KASAN"]		= "N";					// [EOB]前週売上点数に特殊売上を加算するか（Y:加算する、N:加算しない）
+	$UV["EOS_VIEW_KIKAN"]			= "-30";				// [EOB]発注履歴で閲覧できる発注日（今日より何日前までか）
+	$UV["EOB_BACK_WAR_YN"]		= "Y";						// [EOB]カレンダー画面の戻る押下時に警告を表示するか
+	$UV["EOB_DISP_PTN"]				= "1";					// [EOB]カレンダー画面の表示情報パターン（1:通常、2:在庫数、3:ボール入数/ケース入数））
+	
+	$UV["TANAORO_BAIKA_DISP"]			= "Y";				//Y=棚卸の売価入力を表示
+	$UV["TANAORO_GENKA_DISP"]			= "N";				//Y=棚卸の原価入力を表示
+
+//-----------------------------------------------------------
+// 検品
+//-----------------------------------------------------------
+  
+	$UV["KENPIN_DENPYO_SEQ"]				= "1";			// 伝票ＳＥＱ区分（1：作成順 2：分類順）
+	$UV["KENPIN_NOMASTER_YN"]				= "Y";			// マスタ無し商品登録可否（N：否 Y：可）
+	$UV["KENPIN_DISP_RIREKI_YN"]		= "Y";			// スキャン画面下の履歴表示（N：非表示 Y：表示）
+	$UV["KENPIN_SHUSEI_DT"]					= "5";			// 検品履歴修正可能日数
+	$UV["NEBIKI_BAIHEN_YN"]					= "Y";			// 単品値引で売価変更可否 (Y：可 N：否)
+	$UV["DEN_HAKKO_KBN"]						= "TORI";		// 伝票発行出力時、伝票区分/取引区分どちらで分けるか定義 (DEN：伝票区分 TORI：取引区分)
+	$UV["SIIRE_HENPIN_NO_MINUS"]		= "N";			// 仕入/返品で"-"ボタンを非表示にするか定義（Y：非表示 N：表示）
+	$UV["BAIHEN_NO_MINUS"]					= "N";			// 売変/廃棄で"-"ボタンを非表示にするか定義（Y：非表示 N：表示）
+	$UV["HENPIN_TORI_FREE"]					= "N";			// 返品業者を制限しない定義（Y：全取引先返品可 N：検品区分による）
+
+  // ロット区分の初期値(1：バラ 2：取引先のロット区分)
+  $UV["DEF_LOT_KBN_UKEIRE"] ="1";		// 受入
+  $UV["DEF_LOT_KBN_HENPIN"] ="1";		// 返品
+  $UV["DEF_LOT_KBN_IDOU"]   ="1";		// 移動
+  $UV["DEF_LOT_KBN_BAIHEN"] ="1";		// 売変
+  $UV["DEF_LOT_KBN_HAIKI"]  ="1";		// 単品廃棄
+  $UV["DEF_LOT_KBN_NEBIKI"] ="1";		// 単品値引
+  $UV["DEF_LOT_KBN_GENSHI"] ="1";		// 現金仕入
+
+  // 画面種別
+  define("HT_GAMEN_SBT_SIIRE"          ,"H1");			//仕入
+  define("HT_GAMEN_SBT_HENPIN"         ,"H2");			//返品
+  define("HT_GAMEN_SBT_NEBIKI"         ,"H3");			//値引
+  define("HT_GAMEN_SBT_IDOU"           ,"H4");			//移動
+  define("HT_GAMEN_SBT_BAIHEN"         ,"H5");			//売変
+  define("HT_GAMEN_SBT_HAIKI"          ,"H6");			//廃棄
+
+	//売掛
+	$UV["URIKAKE_TOKUISAKI_YN"]			= "N";					// ハンディ売掛入力画面で得意先入力を必須にするか（Y:必須 N:任意）
+	$UV["URIKAKE_ZAIKO_UPD_YN"]			= "N";					// Y:在庫締め対象 N:対象外
+	$UV["URIKAKE_ZAIKO_UPD_DT_TYPE"]	= "1";					// 在庫締で使用する日付（1:売上日 2:出荷日）
+
+//-----------------------------------------------------------
+// タブレット関連
+//-----------------------------------------------------------
+	define("TABLET_APP_VER"  ,"1.1.2");  // アプリ最新バージョン番号
+
+//-----------------------------------------------------------
+// 自動発注関連
+//-----------------------------------------------------------
+// 自動発注関連
+	$UV["BUN_KBN_AOS"]								= "3";						// 自動発注制御する分類区分
+	$UV["AOS_CD_COLUMN_NM"]						= "小分類コード";	// 自動発注分類相当の列名
+	// 設定項目
+	$UV["AOS_HTCD"]										= "AO";			// ht端末コード
+	$UV["AOS_ORDER_SBT"]							= "71";			// 発注種別
+	$UV["AOS_LOT_KBN"]								= "2";			// ロット区分
+	$UV["AOS_ITEM_KBN"]								= "1";			// 商品区分
+	$UV["AOS_ORDER_KBN_AUTO"]					= "0";			// 自動発注区分（自動確定）
+	$UV["AOS_SEND_FLG_INPUT_AO"]			= "-";			// 送信フラグ（自動発注作成時点）
+	$UV["AOS_SEND_FLG_INPUT_HT"]			= "1";			// 送信フラグ（ハンディ登録時点）
+	$UV["AOS_SEND_FLG_SENT"]					= "2";			// 送信フラグ（ハンディ送信時点）
+	// 動作制御
+	$UV["AOS_ITEM_SEL_BY_BUN_YN"]			= "Y";			// 商品抽出条件：分類を使用するか
+	$UV["AOS_ITEM_SEL_BY_TANA_YN"]		= "Y";			// 商品抽出条件：棚割を使用するか
+	$UV["AOS_ITEM_SEL_BY_TORI_YN"]		= "Y";			// 商品抽出条件：取引先を使用するか
+	$UV["AOS_ITEM_SEL_BUN_CD_LEN"]		= "4";			// 商品抽出条件：指定分類コードの長さ（商品マスタの分類コード長不定に対応）
+	$UV["AOS_ITEM_BUN_CD_LEN"]				= "4";			// 商品マスタの分類コード長
+	$UV["AOS_MIN_CHINRETSU_PTN"]			= "1";			// 最低陳列数決定パターン（1：基本=指定値+平均販売数 2：最大販売数）
+	$UV["AOS_JISSEKI_HIKAKU_PTN"]			= "1";			// 売上比較パターン（1：月 2：週）
+	$UV["AOS_JISSEKI_JOGAI_TOKU_SBT"]	= "X";			// 販売予測用除外特売種別
+	$UV["AOS_JISSEKI_ZENNEN_START"]		= "180";		// 販売予測用前年実績開始（前年同日から何日さかのぼるか）
+	$UV["AOS_JISSEKI_ZENNEN_END"]			= "35";			// 販売予測用前年実績終了（前年同日から何日分の未来まで）
+	$UV["AOS_JISSEKI_TOUNEN_START"]		= "90";			// 販売予測用当年実績開始（当年同日から何日さかのぼるか）
+	$UV["AOS_JISSEKI_CHOKKIN_START"]	= "90";			// 販売予測用直近実績開始（当年同日から何日さかのぼるか）
+	$UV["AOS_ORDER_NUM_START"]				= "90";			// HT 最頻発注数の実績開始（当日から何日さかのぼるか））
+	$UV["AOS_EOB_ALERT_YN"]						= "Y";			// HT eobカレンダーで存在アラートを表示するか
+	// 初期値
+	$UV["STD_KAITEN_NISSU"]						= "21";			// 標準回転日数
+	$UV["STD_MIN_CHINRETSU"]					= "3";			// 標準最低陳列数
+	$UV["STD_MAX_CHINRETSU"]					= "30";			// 標準最大陳列数
+	$UV["STD_MIN_ORDER"]							= "3";			// 標準最低発注数
+// 2018.08.20 d.takahashi START =>
+    $UV["SET_ITEM_TARGET_YN"] = "N";  // セット商品を自動発注の対象とするか指定する
+// 2018.08.20 d.takahashi END   =>
+
+//-----------------------------------------------------------
+// 業務毎設定【生産者コーナー】
+//-----------------------------------------------------------
+// 端数区分	(2015.03.03 by inok)
+	define("HASU_KBN_KIRISUTE"		,"1");
+	define("HASU_KBN_SISHA"			,"2");
+	define("HASU_KBN_KIRIAGE"		,"3");
+// 出荷者商品コード
+	define("SC_ITEM_CD_FLG"			,"27");					// フラグ（頭2桁）
+// 出荷者取引先コード
+	define("SC_TORI_CD_FLG"			,"71");					// フラグ（頭2桁）
+// 出荷者コードの自動採番
+	define("SC_SHUKKASHA_SAIBAN_YN"	,"N");
+// 出荷者持ち回り用代表店舗コードを使用するか
+	define("SC_DAIHYO_TENPO_YN"		,"N");
+// 出荷者持ち回り用代表店舗ＩＤ
+	//define("SC_DAIHYO_TENPO_ID"		,"999");
+	define("SC_DAIHYO_TENPO_ID"		,"00");
+// 出荷者取引先コード用店舗ＩＤの決定方法
+	define("SC_TENPO_ID_KBN"		,"B");		// A:店舗コード採用型 B：EDI店舗コード枝番採用型
+// 桁数設定
+	//define("LEN_SC_SHUKKASHA_CD"	,"3");		// 出荷者コード桁数
+	//define("LEN_SC_SHUKKASHA_ID"	,"3");		// 出荷者ＩＤ桁数
+	define("LEN_SC_SHUKKASHA_CD"	,"4");		// 出荷者コード桁数
+	define("LEN_SC_SHUKKASHA_ID"	,"4");		// 出荷者ＩＤ桁数
+	define("LEN_SC_TORI_CD"			,"8");		// 出荷者取引先コード桁数
+	//define("LEN_SC_TENPO_CD"		,"3");		// 出荷者店舗コード桁数
+	//define("LEN_SC_TENPO_ID"		,"3");		// 出荷者店舗ＩＤ桁数（全店共通：999）
+	define("LEN_SC_TENPO_ID"		,"2");		// 出荷者店舗ＩＤ桁数（全店共通：00）
+	define("LEN_SC_ITEM_ID"			,"6");		// 出荷者商品ＩＤ桁数
+	define("LEN_SC_ITEM_BAIKA"		,"4");		// 出荷者商品売価桁数
+// 売価チェックデジットを使用するか
+	define("SC_ITEM_BAIKA_C_D_YN"	,"N");		// 27-iiiii-p-bbbb-c
+// 商品ＩＤを店舗毎に採番するか
+	define("SC_ITEM_TENPO_SAIBAN_YN","N");
+// 出荷者情報格納用デリミッタ
+	define("SC_KUGIRI"				,"|");
+// 出荷者の支払管理を行うか
+	define("SC_KAIKAKE_YN"			,"N");
+// 生産者コーナー初期値
+	define("SC_TESURYO_RATE"		,"0.20");				// 省略時手数料率
+	define("SC_EOS_KBN"				,EOS_KBN_N);			// ＥＯＳ区分
+	define("SC_GENKA_HASU_KBN"		,HASU_KBN_SISHA);		// 伝票原価端数区分
+	define("SC_KAKE_KBN"			,KAKE_KBN_GENKIN);		// 掛現金区分
+	define("SC_KAIKAKE_KBN"			,"1");					// 買掛未払区分（1：買掛 2：未払）
+	define("SC_YOTEIHYO_KBN"		,"0");					// 支払予定表出力区分（0：非出力）
+	define("SC_SIHA_SAKUSEI_KBN"	,"0");					// 支払作成区分（0：非作成）
+	define("SC_FURI_TESURYO_KBN"	,"1");					// 振込手数料区分（0：同行本支店 1：当行本支店）
+// 生産者コーナー初期値（ラベラ関連）
+	// NON-PLU区分
+	define("SC_NON_PLU_KBN_PLU"		,"0");					// NON-PLU区分：PLU
+	define("SC_NON_PLU_KBN_NON"		,"1");					// NON-PLU区分：NON-PLU
+	// ラベル種別
+	define("SC_LABEL_TYPE_LARGE"	,"ReportB");			// ラベル種別：大ラベル
+	define("SC_LABEL_TYPE_SMALL"	,"ReportA");			// ラベル種別：小ラベル
+	define("SC_LABEL_TYPE_DEF"		,SC_LABEL_TYPE_LARGE);	// ラベル種別：初期値
+	// 資材マーク
+	define("SC_SIZAI_MARK_KAMI"		,"2");					// 資材マーク：紙
+	define("SC_SIZAI_MARK_PLA"		,"3");					// 資材マーク：プラ
+	define("SC_SIZAI_MARK_DEF"		,SC_SIZAI_MARK_PLA);	// 資材マーク：初期値
+	// プラマーク
+	define("SC_PLA_MARK_TOP"		,"トレー");				// プラマーク：横表記上段
+	define("SC_PLA_MARK_BOTTOM"		,"ラップ");				// プラマーク：横表記下段
+// 生産者コーナー初期値（売上関連）
+	// 生産者手数料計算区分
+	define("SC_TESURYO_CALC_KBN"	,"4");					// 1：明細単位 2：伝票毎 3：日毎 4：締毎
+	// 生産者手数料税区分
+	define("SC_TESURYO_TAX_KBN"		,TAX_KBN_SOTO);			// 1：外税(税抜) 2：内税(税込)
+	// 生産者手数料端数区分
+	define("SC_TESURYO_HASU_KBN"	,HASU_KBN_SISHA);		// 1：切捨 2：四捨五入 3：切上
+// 生産者コーナー初期値（配信関連）
+	define("SC_HAISIN_TIME"			,"1200|1500|1800");		// 12:00 15:00 18:00
+// 生産者コーナー分類レベル	(2015.03.01 SC対応 by inok)
+	define("SC_BUMON_CD"		,"0109");
+	define("SC_ARARI_CD"		,"0109");
+	define("SC_CLASS_CD"		,"1911");
+	$UV["SC_CLASS_CD"]			= array("1911");
+	$UV["SC_BUN_CD"]			= array("191110","191111","191112","191119","191129");
+	define("SC_LABEL_BUN_KBN"	,"34");
+
+
+// テスト配信先
+	define( "SC_TEST_MAIL_TO"		,"onitsuka@himuka.ne.jp");
+
+// 2018.04.10 d.takahashi START =>
+    define("TOKU_FUTURE_DAYS_RANGE", 30);       // 特売の未来何日まで対象にするか
+// 2018.04.10 d.takahashi END   =>
+
+// 2018.12.21 d.takahashi START =>
+    // 生鮮発注関連
+    // 規格の入力をするかどうか。(Y:する, N:しない)
+    $UV["FRESH2_KIKAKU_INPUT"]        = "Y";
+    $UV["FRESH2_TANTO_BUN_KBN"]       = "2";
+    $UV["FRESH2_TANTO_BUN_COLUMN_NM"] = "分類コード";
+// 2018.12.21 d.takahashi END   =>
+
+//  生鮮発注にて商品コードの入力を行うか（Y:行う　N:行わない）
+    $UV["FRESH2_HONBU_ORDER_JAN_INPUT"] ="Y";
+
+//-----------------------------------------------------------
+// 売上関連画面制御関連
+//-----------------------------------------------------------
+// 売上関連
+	$UV["URI_DISP_FIRST_SEQ"]		= "CODE";					// 売上単品以外の表示順の初期値 (CODE:コード順、BEST:金額ベスト順)
+	$UV["URI_DISP_FIRST_KIKAN"]	= "日指定";				// 売上集計の期間の初期値(月指定/日指定)
+  $UV["URI_DISP_GROWLIST_YN"] = "N";						// 売上伸張リストの利用(山スト独自帳票)
+  $UV["URI_DISP_YOSAN_TABLE"] = "DAY";					// 予算を日で見るか、月で見るか
+	// 部門集計画面の部門1階層
+	$UV["URI_DISP_BUMON1_YN"]		= "Y";						// 検索を利用するか
+	$UV["URI_DISP_BUMON1_KBN"]	= BUN_KBN_DAI;	// 分類区分
+	$UV["URI_DISP_BUMON1_NM"]		= "大分類";				// 表示名称
+	$UV["URI_DISP_BUMON1_LINK"]	= "大";						// リンク名称
+	// 部門集計画面の部門2階層
+	$UV["URI_DISP_BUMON2_YN"]		= "Y";						// 検索を利用するか
+	$UV["URI_DISP_BUMON2_KBN"]	=  BUN_KBN_CHU;		// 分類区分
+	$UV["URI_DISP_BUMON2_NM"]		= "中分類";				// 表示名称
+	$UV["URI_DISP_BUMON2_LINK"]	= "中";						// リンク名称
+	// 部門集計画面の部門3階層
+	$UV["URI_DISP_BUMON3_YN"]		= "Y";						// 検索を利用するか
+	$UV["URI_DISP_BUMON3_KBN"]	=  BUN_KBN_SHO;		// 分類区分
+	$UV["URI_DISP_BUMON3_NM"]		= "小分類";				// 表示名称
+	$UV["URI_DISP_BUMON3_LINK"]	= "小";						// リンク名称
+	// クラス集計画面
+	$UV["URI_DISP_CLASS_YN"]		= "N";						// 検索を利用するか
+	$UV["URI_DISP_CLASS_KBN"]		=  BUN_KBN_SAI;		// 分類区分
+	$UV["URI_DISP_CLASS_NM"]		= "クラス";				// 表示名称
+	$UV["URI_DISP_CLASS_LINK"]	= "Ｃ";						// リンク名称
+
+// 2019.07.27 d.takahashi 追記
+	$UV["URI_DISP_HAIKI_TYPE"] = "U";		// 売上仕入で廃棄の取得元
+	$UV["URI_DISP_NEBIKI_TYPE"] = "U";		// 売上仕入で値引の取得元
+
+	$UV["HACCHU_KEIGEN_ZEI_DATE"]						= "20190903";	// 軽減税率対応 開始日 (発注系)
+	$UV["HACCHU_KEIGEN_ZEI_DATE2"]					= "20190911";	// 軽減税率対応 開始日 (発注系) 配信用
+
+//-----------------------------------------------------------
+// 生鮮EDI 関連
+//-----------------------------------------------------------
+    // 生鮮EDI 卸側 出荷登録 出荷始まりの最大行数
+    $UV["FR2_ORO_SHUKKA_ROWCOUNT_MAX"]       = 10;
+    // 生鮮EDI 出荷登録画面パターン
+    $UV["FR2_SHUKKA_DISP_PTN"]               = "A";
+// com_db 接続情報
+	define("COM_DB_DBHOST" ,"172.16.3.28");
+	define("COM_DB_DBUSER" ,"kenpin");
+	define("COM_DB_DBPASS" ,"kenpin");
+	define("COM_DB_DBNAME" ,"com_db");
+	define("COM_DB_DBPORT" ,"5432");
+?>
