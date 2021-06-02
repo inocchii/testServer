@@ -58,7 +58,9 @@
 
     // レスポンス送信
 	$log->put(PNAME,"..sending...");
-    header("Content-Type: application/json; charset=UTF-8");
+    //header("Content-Type: application/json; charset=UTF-8");
+    header("Content-Type: text/plain; charset=UTF-8");
+    header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
     echo $json;
 
     // 終了
