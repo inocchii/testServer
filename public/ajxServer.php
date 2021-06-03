@@ -23,11 +23,13 @@
 	// ■ 2021.05.10 新規作成 inok
 	//----------------------------------------------------------------------------------
     // 初期値
+    //echo("test");
     $arrD =  explode("/", dirname(__FILE__));
 	$base = $arrD[count($arrD) - 2];
 	define("PNAME"   ,$base);
 	define("PTITLE"  ,"Ajaxサーバ");
 
+    //echo("test");
     // セッション
     session_start(); 
 
@@ -35,7 +37,8 @@
     require_once(__DIR__."/../require.php");
     require_once(__DIR__."/../com_module/clsDbGetter.inc");
 	
-	// 初期処理
+    //echo("test");
+    // 初期処理
 	init();
 
     // リクエスト取得
@@ -43,6 +46,7 @@
     // POSTを取得
     //$request = json_decode(file_get_contents("php://input"), true);
     $request = $_REQUEST;
+	$log->put(PNAME,"..receive server:".arr2set($_SERVER));
 	$log->put(PNAME,"..receive request:".arr2set($request));
 
     // メイン処理
@@ -57,10 +61,16 @@
     $json = json_encode($response, JSON_UNESCAPED_UNICODE);
 
     // レスポンス送信
-	$log->put(PNAME,"..sending...");
+	$log->put(PNAME,"..sending... ver.2021.06.03.01");
+    //header("Content-Type: text/plain; charset=UTF-8");
+    header("Content-Type: application/json; charset=UTF-8");
+    //header('Access-Control-Allow-Origin: *');
+    //header('Access-Control-Allow-Origin: true');
+    header('Access-Control-Allow-Origin: '.$_SERVER["HTTP_ORIGIN"]);
     //header("Content-Type: application/json; charset=UTF-8");
-    header("Content-Type: text/plain; charset=UTF-8");
-    header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
+    //header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
+    //header('Access-Control-Allow-Origin: *');
+    //header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
     echo $json;
 
     // 終了

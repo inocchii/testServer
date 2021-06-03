@@ -1,0 +1,6 @@
+# local const file
+conf/const.inc
+
+# Log files
+logs
+
