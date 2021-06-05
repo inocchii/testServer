@@ -68,7 +68,8 @@ class CLog {
 	//---------------------------------------------------------------
 	// コンストラクタ
 	//---------------------------------------------------------------
-	function CLog($argFileNm) {
+	//function CLog($argFileNm) {
+	function __construct($argFileNm) {
 		//global $LOG_PATH;
 		//$this->filePath = $LOG_PATH;
 		if ( defined('LOG_PATH') ){

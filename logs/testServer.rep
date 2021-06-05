@@ -45,3 +45,11 @@ ER 21-05-22 11:07:27+550|getToriList   SQL=select 取引先コード, ＥＤＩ�
  where 削除フラグ<>'1'
  order by 取引先コード
 ER 21-05-22 11:07:27+551|....getToriList err:取引先リスト取得に失敗しました ()
+ER 21-05-25 23:02:18+805|no func go test
+ER 21-06-01 02:45:40+966|no func go test
+ER 21-06-01 05:03:19+509|no func go test
+ER 21-06-01 15:58:06+039|no func go test
+ER 21-06-03 15:28:44+276|....getBunList last_error:
+ER 21-06-03 15:33:01+097|....getBunList last_error:
+ER 21-06-03 23:54:46+000|....getBunList last_error:
+ER 21-06-05 03:59:30+041|....getBunList last_error:

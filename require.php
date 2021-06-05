@@ -25,12 +25,16 @@ $arrInc = array(
     COM_MOD_DIR . 'clsLog.inc',
     /* 定数クラス */
     COM_MOD_DIR . 'clsConst.inc',
-    /* DB操作 */
-    COM_MOD_DIR . 'clsDbInfo.inc',
     /* JSON */
     COM_MOD_DIR . 'clsJson.inc',
     /* mail */
     COM_MOD_DIR . 'fncMail.inc',
+    /* DB操作 */
+    COM_MOD_DIR . 'clsDbInfo.inc',
+    /* DB操作 */
+    COM_MOD_DIR . 'clsDbGetter.inc',
+    /* AjaxServer */
+    COM_MOD_DIR . 'clsBaseServer.inc',
 );
 
 // 共通インクルード読込

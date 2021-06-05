@@ -187,6 +187,10 @@
 		return pg_copy_from ( $connect, $table_name, $rows );
 	}
 
+	// PG側のエンコード指定
+	function db_set_client_encoding( $connect, $argEncode ) {
+		return pg_set_client_encoding( $connect, $argEncode );
+	}
 
 //###################################################################
 // 旧バージョン

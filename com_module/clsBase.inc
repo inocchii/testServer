@@ -8,6 +8,7 @@
 class CBase{
     //--------------------------
     var $CNAME = "CBase";
+    var $PNAME = "";
     //--------------------------
     // DB
     //--------------------------
@@ -33,11 +34,15 @@ class CBase{
     //--------------------------
     // コンストラクタ
     //--------------------------
-    function CBase(&$log) {
-		$this->setLog($log);
+    //function CBase(&$log) {
+    function __construct(&$log) {
+        $this->setLog($log);
 		$this->today = date("Ymd");
 		$this->timestamp = date("YmdHis");
 	}
+    /** プログラム名 **/
+    function setPNAME($args) { $this->PNAME = $args; }
+    function getPNAME() { return $this->PNAME; }
 	/** コネクション設定 */
 	function setCon(&$args) { $this->con=$args; }
     /** ログ設定 */
@@ -84,7 +89,7 @@ class CBase{
     function set($argKey,$argValue) { $this->dtl[$argKey] = $argValue; }
     function get($argKey) { return $this->dtl[$argKey]; }
     /** 設定値リストの取得（ログ用） **/
-    function getList($argArr) {
+    function listDtl($argArr) {
 		foreach ( $argArr as $val ) {
 			$list .= " ".$val.":".$this->get($val);
 		}
