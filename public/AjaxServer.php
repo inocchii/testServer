@@ -29,7 +29,14 @@ define("PTITLE"  ,"Ajaxサーバ");
 require_once(__DIR__."/../require.php");
 
 class AjaxServer extends CBaseServer {
+    // 返信パラメータ
+    public $PARAM_NM_RESULT     = "result";
+    public $PARAM_NM_MESSAGE    = "message";
+    public $PARAM_NM_INFO       = "info";
+    public $PARAM_NM_LIST       = "list";
+
     public function main() {
+
         session_start(); 
 
         $this->doInit();
@@ -42,50 +49,213 @@ class AjaxServer extends CBaseServer {
         $this->log->put(PNAME,"..receive server:".arr2set($_SERVER));
         $this->log->put(PNAME,"..receive request:".arr2set($request));
 
+        // doMain
         $response = $this->doMain($request);
         // 処理でエラー
         if ( $response === false ) {
             $this->log->putErr(PNAME,"response error request:".$request);
         }
 
+        // 返信
         $this->doResponse($response);
 
         $this->doTerm();
 
     }
-    
+
+    //============================================
+	// handleError
+    // 　共通処理：エラー結果をセットして戻す
+	//============================================
+    function handleError($argBuf, $argMsg ) {
+        $this->log->putErr(PNAME,$argMsg);
+        /*
+        array_push($argBuf,[$this->PARAM_NM_RESULT  => false]);
+        array_push($argBuf,[$this->PARAM_NM_MESSAGE => $argMsg]);
+        */
+        $argBuf[$this->PARAM_NM_RESULT] = false;
+        $argBuf[$this->PARAM_NM_MESSAGE] = $argMsg;
+        return $argBuf;
+    }
+
+    //============================================
+	// getToken
+    // 　共通処理：トークンを生成して戻す
+	//============================================
+    function getToken() {
+        return uniqid('', true);
+    }
+
+	//============================================
+	// function=checkSignup
+    // 戻り値：info型
+	//============================================
+	function checkSignup($argReq) {
+        $this->log->put(PNAME,"....".__FUNCTION__." starting...");
+
+        // 初期化
+        $myRec      = [];
+        $myBuf      = [];
+
+        // パラメータ基本チェック
+        if ( $argReq['userid'] == null || $argReq['userid'] == "" ||
+             $argReq['usernm'] == null || $argReq['usernm'] == "" ||
+             $argReq['email']  == null || $argReq['email']  == "" ||
+             $argReq['passwd'] == null || $argReq['passwd'] == "" ) {
+            $message = "【エラー】未入力項目があります";
+            // エラー判定
+            return $this->handleError($myBuf, $message );
+        }
+
+        // DB接続
+        $dbUtil = new CDbUtil($this->log);
+        $dbh = $dbUtil->connect(MAIN_DSN, MAIN_DBUSER, MAIN_DBPASSWORD);
+        //$dbh = new PDO(MAIN_DSN, MAIN_DBUSER, MAIN_DBPASSWORD);
+
+        //-------------------------
+        // 登録済みかのチェック
+        //-------------------------
+        // SQL
+		$sql =<<<SQL
+select userid,usernm,email
+  from user
+ where userid = :userid
+SQL;
+        // prepare
+        $stmt = $dbh -> prepare($sql);
+        $stmt -> bindValue("userid",$argReq['userid'],PDO::PARAM_STR);
+        // 実行
+        if ( ! $stmt -> execute() ) {
+            $message = "【エラー】ユーザチェックに失敗しました (".arr2set($stmt->errorInfo()).")";
+            // エラー判定
+            return $this->handleError($myBuf, $message );
+        }
+        // 結果取得
+        $myRec = $stmt->fetch(PDO::FETCH_ASSOC);
+        // 結果判定
+        if ( countAny($myRec) > 0 ) {
+            $message = "【エラー】登録済みのアカウントです";
+            // エラー判定
+            return $this->handleError($myBuf, $message );
+        }
+        //-------------------------
+        // 登録
+        //-------------------------
+        $token      = $this->getToken();    // トークン
+        $lastLogin  = $this->timestamp;     // 前回ログイン
+
+        // SQL
+		$sql =<<<SQL
+insert into user (
+   userid , usernm , email , passwd , token , last_login
+)values(
+  :userid ,:usernm ,:email ,:passwd ,:token ,:last_login
+)
+SQL;
+        // prepare
+        $stmt = $dbh -> prepare($sql);
+        $stmt -> bindValue("userid",$argReq['userid'],PDO::PARAM_STR);
+        $stmt -> bindValue("usernm",$argReq['usernm'],PDO::PARAM_STR);
+        $stmt -> bindValue("email", $argReq['email'],PDO::PARAM_STR);
+        $stmt -> bindValue("passwd",md5($argReq['passwd']),PDO::PARAM_STR);
+        $stmt -> bindValue("token", $token,PDO::PARAM_STR);
+        $stmt -> bindValue("last_login",$lastLogin,PDO::PARAM_STR);
+        // 実行
+        if ( ! $stmt -> execute() ) {
+            $message = "【エラー】ユーザ登録に失敗しました (".arr2set($stmt->errorInfo()).")";
+            // エラー判定
+            return $this->handleError($myBuf, $message );
+        }
+        // ログインまで完了とする
+        $myRec["userid"]        = $argReq['userid'];
+        $myRec["usernm"]        = $argReq['usernm'];
+        $myRec["email"]         = $argReq['email'];
+        $myRec["token"]         = $token;
+        $myRec["last_login"]    = $lastLogin;
+
+        // 処理結果
+        $this->log->put(PNAME,"....".__FUNCTION__." rec=".arr2set($myRec));
+        $myBuf[$this->PARAM_NM_INFO]    = $myRec;
+        $myBuf[$this->PARAM_NM_RESULT]  = true;
+        $myBuf[$this->PARAM_NM_MESSAGE] = "正常に登録できました";
+        /*
+        array_push( $myBuf,["info"      => $myRec] );
+        array_push( $myBuf,["result"    => true] );
+        array_push( $myBuf,["message"   => $message] );
+        */
+
+        return $myBuf;
+    }
 	//============================================
 	// function=checkLogin
+    // 戻り値：info型
 	//============================================
 	function checkLogin($argReq) {
         $this->log->put(PNAME,"....".__FUNCTION__." starting...");
+
         // 初期化
-        $myBuf  = [];   $myData = [];
-        $result = true;
-        // チェック
-        if ( $argReq['login_id'] == null || $argReq['login_id'] == "" ||
-             $argReq['login_pw'] == null || $argReq['login_pw'] == "" ) {
-			$result = false;
+        $myRec      = [];
+        $myBuf      = [];
+
+        // パラメータ基本チェック
+        if ( $argReq['userid'] == null || $argReq['userid'] == "" ||
+             $argReq['passwd'] == null || $argReq['passwd'] == "" ) {
 			$message = "【エラー】ログイン情報の入力がありません";
-			$this->log->putErr(PNAME,$message);
-            // 処理結果判定を加える
-            array_push( $myBuf,["result"   => $result] );
-            array_push( $myBuf,["message"  => $message] );
-			return $myBuf;
+            // エラー判定
+            return $this->handleError($myBuf, $message );
         }
-        // 引当
-        $message = "正常にログインできました";
-        // ユーザ情報編集
-        $myBuf["user_nm"]  = "ドラゴン桜";
-        $myBuf["pref"]  = "北海道";
-        $myBuf["address"]  = "札幌市";
-        $myBuf["result"]  = $result;
-        $myBuf["message"]  = $message;
+
+        // DB接続
+        $dbUtil = new CDbUtil($this->log);
+        $dbh = $dbUtil->connect(MAIN_DSN, MAIN_DBUSER, MAIN_DBPASSWORD);
+        //$dbh = new PDO(MAIN_DSN, MAIN_DBUSER, MAIN_DBPASSWORD);
+
+        // SQL
+		$sql =<<<SQL
+select userid,usernm,email,token,last_login
+  from user
+ where userid = :userid
+   and passwd = :passwd
+SQL;
+
+        // prepare
+        $stmt = $dbh -> prepare($sql);
+        $stmt -> bindValue("userid",$argReq['userid'],PDO::PARAM_STR);
+        $stmt -> bindValue("passwd",md5($argReq['passwd']),PDO::PARAM_STR);
+
+        // 実行
+        if ( ! $stmt -> execute() ) {
+            $message = "【エラー】ログインに失敗しました (".arr2set($stmt->errorInfo()).")";
+            // エラー判定
+            return $this->handleError($myBuf, $message );
+        }
+
+        // 結果取得
+        $myRec = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // 結果判定
+        if ( countAny($myRec) <= 0 ) {
+            $message = "【エラー】ログインできません";
+            // エラー判定
+            return $this->handleError($myBuf, $message );
+        }
+
+        // 処理結果
+        $this->log->put(PNAME,"....".__FUNCTION__." rec=".arr2set($myRec));
+        $myBuf[$this->PARAM_NM_INFO]    = $myRec;
+        $myBuf[$this->PARAM_NM_RESULT]  = true;
+        $myBuf[$this->PARAM_NM_MESSAGE] = "正常にログインできました";
+        /*
+        array_push( $myBuf,["info"      => $myRec] );
+        array_push( $myBuf,["result"    => true] );
+        array_push( $myBuf,["message"   => $message] );
+        */
 
         return $myBuf;
     }
 	//============================================
 	// function=getFileVersionList
+    // 戻り値：list型
 	//============================================
 	function getFileVersionList($argReq) {
         $this->log->put(PNAME,"....".__FUNCTION__." starting...");
@@ -96,7 +266,7 @@ class AjaxServer extends CBaseServer {
         //
         // ダミー編集
         //
-        $ver = editDate(TODAY,"YYDMMDDD");
+        $ver = editDate($this->today,"YYDMMDDD");
         $record =[
             "file_id"       => "bun_list",
             "file_nm"       => "分類リスト",
@@ -126,10 +296,18 @@ class AjaxServer extends CBaseServer {
         array_push($myData,$record);
 
         // list型の場合は{"list":レコード}とする
+        // 処理結果
+        // list型の場合は{"list":レコード}とする
+        $this->log->put(PNAME,"....".__FUNCTION__." count(myData)".count($myData));
+        $myBuf[$this->PARAM_NM_LIST]    = $myData;
+        $myBuf[$this->PARAM_NM_RESULT]  = true;
+        $myBuf[$this->PARAM_NM_MESSAGE] = $message;
+        /*
         array_push( $myBuf,["list"      => $myData] );
         // 処理結果判定を加える
         array_push( $myBuf,["result"    => $result] );
         array_push( $myBuf,["message"   => $message] );
+        */
         
         // メッセージ
 		$MESSAGES = ""; 
@@ -140,6 +318,7 @@ class AjaxServer extends CBaseServer {
     }
 	//============================================
 	// function=getBunList
+    // 戻り値：list型
 	//============================================
 	function getBunList($argReq) {
         $this->log->put(PNAME,"....".__FUNCTION__." starting...");
@@ -147,6 +326,10 @@ class AjaxServer extends CBaseServer {
         $myBuf  = [];   $myData = [];
         $result = true;
         $message = "分類リスト";
+
+        // DB接続
+        $objDbInfo = new CDbInfo($log);
+        $this->conn = $objDbInfo->makeCon4Test();
 
         // Query
         db_set_client_encoding($this->conn,"UNICODE");
@@ -170,15 +353,20 @@ class AjaxServer extends CBaseServer {
 		for ($i=0; $i<$numOfQuery; $i++) {
 			$myData[$i] = db_fetch_assoc($resOfQuery, $i);
         }
-        $this->log->put(PNAME,"....".__FUNCTION__." count(myData)".count($myData));
-        // list型の場合は{"list":レコード}とする
+        /*
         array_push( $myBuf,["list"      => $myData] );
         // 処理結果判定を加える
         array_push( $myBuf,["result"    => $result] );
         array_push( $myBuf,["message"   => $message] );
-        
-        // メッセージ
-		$MESSAGES = ""; 
+        */
+
+        // 処理結果
+        // list型の場合は{"list":レコード}とする
+        $this->log->put(PNAME,"....".__FUNCTION__." count(myData)".count($myData));
+        $myBuf[$this->PARAM_NM_LIST]    = $myData;
+        $myBuf[$this->PARAM_NM_RESULT]  = true;
+        $myBuf[$this->PARAM_NM_MESSAGE] = "分類リスト";
+
         $this->log->put(PNAME,"....".__FUNCTION__." ended...");
 
         return $myBuf;
@@ -186,11 +374,16 @@ class AjaxServer extends CBaseServer {
     }
 	//============================================
 	// function=getToriList
+    // 戻り値：list型
 	//============================================
 	function getToriList($argReq) {
         $this->log->put(PNAME,"....".__FUNCTION__." starting...");
         // レスポンスの初期化
         $myBuf  = []; $result = true; $message = "取引先リスト";
+
+        // DB接続
+        $objDbInfo = new CDbInfo($log);
+        $this->conn = $objDbInfo->makeCon4Test();
 
         // SQL
 		$sql =<<<SQL
@@ -204,7 +397,8 @@ SQL;
         $dbGetter = new CDbGetter($this->log);
         if ( $rec = $dbGetter->getList($this->conn,$sql,__FUNCTION__) ) {
             // list型の場合は{"list":レコード}とする
-            array_push( $myBuf,["list"      => $rec] );
+            //array_push( $myBuf,["list"      => $rec] );
+            $myBuf[$this->PARAM_NM_LIST]    = $rec;
             $this->log->put(PNAME,"....".__FUNCTION__." count(res)=".count($rec));
         } else {
             $result = false;
@@ -213,8 +407,12 @@ SQL;
         }
 
         // 処理結果判定を加える
+        $myBuf[$this->PARAM_NM_RESULT]  = $result;
+        $myBuf[$this->PARAM_NM_MESSAGE] = $message;
+        /*
         array_push( $myBuf,["result"    => $result] );
         array_push( $myBuf,["message"   => $message] );
+        */
         
         $this->log->put(PNAME,"....".__FUNCTION__." ended...");
 
@@ -223,11 +421,16 @@ SQL;
     }
 	//============================================
 	// function=getItemList
+    // 戻り値：list型
 	//============================================
 	function getItemList($argReq) {
         $this->log->put(PNAME,"....".__FUNCTION__." starting...");
         // レスポンスの初期化
         $myBuf  = []; $result = true; $message = "商品リスト";
+
+        // DB接続
+        $objDbInfo = new CDbInfo($log);
+        $this->conn = $objDbInfo->makeCon4Test();
 
         // SQL
 		$sql =<<<SQL
@@ -251,7 +454,8 @@ SQL;
         if ( $rec = $dbGetter->getList($this->conn,$sql,__FUNCTION__) ) {
             $this->log->put(PNAME,"....".__FUNCTION__." dbGetter count(rec)=".count($rec));
             // list型の場合は{"list":レコード}とする
-            array_push( $myBuf,["list"      => $rec] );
+            //array_push( $myBuf,["list"      => $rec] );
+            $myBuf[$this->PARAM_NM_LIST]    = $rec;
             $this->log->put(PNAME,"....".__FUNCTION__." array_push completed");
         } else {
             $result = false;
@@ -260,8 +464,12 @@ SQL;
         }
 
         // 処理結果判定を加える
+        $myBuf[$this->PARAM_NM_RESULT]  = $result;
+        $myBuf[$this->PARAM_NM_MESSAGE] = $message;
+        /*
         array_push( $myBuf,["result"    => $result] );
         array_push( $myBuf,["message"   => $message] );
+        */
         
         $this->log->put(PNAME,"....".__FUNCTION__." ended...");
 

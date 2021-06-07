@@ -4,21 +4,46 @@ ini_set('display_errors', 0);
 
 /**
  * DBアクセスクラス
- * @author T.Suzuki
- * @version 2017.08.10
+ * @author inok
+ * @version 2021.06.06
  */
 
+ require_once("clsBase.inc");
 
-class CDbInfo {
+class CDbInfo extends CBase {
+	//---------------------------------------------------------------
+    // プロパティ
+	//---------------------------------------------------------------
+	var $CNAME             = "CDbInfo";
+	//---------------------------------------------------------------
+    // コンストラクタ
+	//---------------------------------------------------------------
 	function __construct($log) {
-	//       print "In BaseClass constructor\n";
+    	parent::__construct($log);
 	}
-	function makeCon($p,$p2) {
-//dev		return pg_connect("host=172.16.3.32 port=5432 dbname=950262 user=kenpin password=kenpin");
-		return pg_connect("host=".INIT_DBHOST." port=".INIT_DBPORT." dbname=".INIT_DBNAME." user=".INIT_DBUSER." password=".INIT_DBPASSWORD."");
+	//---------------------------------------------------------------
+    // 接続
+	//---------------------------------------------------------------
+	function makeCon($p1=INIT_DBHOST,$p2=INIT_DBPORT,$p3=INIT_DBNAME,$p4=INIT_DBUSER,$p5=INIT_DBPASSWORD,$p6=INIT_DBTYPE) {
+		if ( $p6 == "MY" ) {
+			mysqli_connect($p1,$p4,$p5,$p3,$p2);
+		} else {
+			return pg_connect("host=".$p1." port=".$p2." dbname=".$p3." user=".$p4." password=".$p5."");
+		}
 	}
-	function makeCon4Test() {
-		return pg_connect("host=".TEST_DBHOST." port=".TEST_DBPORT." dbname=".TEST_DBNAME." user=".TEST_DBUSER." password=".TEST_DBPASSWORD."");
+	function makeCon4Test($p1=TEST_DBHOST,$p2=TEST_DBPORT,$p3=TEST_DBNAME,$p4=TEST_DBUSER,$p5=TEST_DBPASSWORD,$p6=TEST_DBTYPE) {
+		if ( $p6 == "MY" ) {
+			mysqli_connect($p1,$p4,$p5,$p3,$p2);
+		} else {
+			return pg_connect("host=".$p1." port=".$p2." dbname=".$p3." user=".$p4." password=".$p5."");
+		}
+	}
+	function makeCon4Main($p1=MAIN_DBHOST,$p2=MAIN_DBPORT,$p3=MAIN_DBNAME,$p4=MAIN_DBUSER,$p5=MAIN_DBPASSWORD,$p6=MAIN_DBTYPE) {
+		if ( $p6 == "MY" ) {
+			mysqli_connect($p1,$p4,$p5,$p3,$p2);
+		} else {
+			return pg_connect("host=".$p1." port=".$p2." dbname=".$p3." user=".$p4." password=".$p5."");
+		}
 	}
 }
 

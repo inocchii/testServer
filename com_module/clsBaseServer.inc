@@ -36,35 +36,28 @@ class CBaseServer extends CBase {
        $this->log->put($this->PNAME,"..doMain starting...");
 
         // 基本項目を初期化
-        $result = true;
-        $message = "OK";
-        $func   = "testFunc";
         $bufRes = [];
-        $data   = [];
 
         // リクエストの基本チェック
 		if( $argReq == null || $argReq == "" ) {
-			$result = false;
 			$message = "【エラー】リクエストが空です。";
 			$this->log->putErr($this->PNAME,$message);
-            // 処理結果判定を加える
-            array_push( $bufRes,["result"   => $result] );
+            array_push( $bufRes,["result"   => false] );
             array_push( $bufRes,["message"  => $message] );
 			return $bufRes;
 		}
-
-        // function=xxx にて機能名を取得
-        if ( $argReq["function"] ) {
-            $func = $argReq['function']; 
-            $this->log->put($this->PNAME,"..doMain function=".$func);
-        } else {
-            $this->log->putErr($this->PNAME,"no func go test");
+        // function指定
+        if ( ! $argReq["function"] ) {
+			$message = "【エラー】no function";
+            $this->log->putErr($this->PNAME,$message);
+            array_push( $bufRes,["result"   => false] );
+            array_push( $bufRes,["message"  => $message] );
+			return $bufRes;
         }
 
-        // 接続
-        $dbInfo = new CDbInfo($log);
-        $this->conn = $dbInfo->makeCon4Test();
-        $this->log->put($this->PNAME,"..doMain connected dbname:".db_dbname($this->conn));
+        // function=xxx にて機能名を取得
+        $func = $argReq['function']; 
+        $this->log->put($this->PNAME,"..doMain function=".$func);
 
         //------------------------
         // 各function
@@ -72,12 +65,16 @@ class CBaseServer extends CBase {
         //------------------------
         try {
             $bufRes = $this->$func($argReq);
+        } catch (PDOException $ex) {
+			$message = "【エラー】function:".$func." DB ERR:".$ex->getMessage();
+            $this->log->putErr($this->PNAME,$message);
+            array_push( $bufRes,["result"   => false] );
+            array_push( $bufRes,["message"  => $message] );
+			return $bufRes;
         } catch (Exception $ex) {
-            $this->log->putErr($this->PNAME,"invalid func:".$func." exception:".$ex->getMessage());
-			$result = false;
-			$message = "【エラー】未対応function:".$func;
-            // 処理結果判定を加える
-            array_push( $bufRes,["result"   => $result] );
+			$message = "【エラー】function:".$func." exception:".$ex->getMessage();
+            $this->log->putErr($this->PNAME,$message);
+            array_push( $bufRes,["result"   => false] );
             array_push( $bufRes,["message"  => $message] );
 			return $bufRes;
         }

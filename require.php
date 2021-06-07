@@ -10,6 +10,7 @@ session_start(); //add 170706 suzuki
 
 //定数読み込み
 define("CONST_DIR",   "conf/");
+require_once(CONST_DIR."local.inc");
 require_once(CONST_DIR."const.inc");
 
 //----------------------------------------------------------
@@ -29,6 +30,8 @@ $arrInc = array(
     COM_MOD_DIR . 'clsJson.inc',
     /* mail */
     COM_MOD_DIR . 'fncMail.inc',
+    /* DB操作 */
+    COM_MOD_DIR . 'clsDbUtil.inc',
     /* DB操作 */
     COM_MOD_DIR . 'clsDbInfo.inc',
     /* DB操作 */

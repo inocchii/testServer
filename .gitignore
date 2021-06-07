@@ -1,6 +1,8 @@
 # local const file
-conf/const.inc
+conf/local.inc
+# conf/const.inc
 
 # Log files
 logs
 
+com_module/clsDbInfo.inc_org
